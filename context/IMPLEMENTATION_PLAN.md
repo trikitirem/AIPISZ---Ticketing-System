@@ -112,28 +112,28 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 
 ## 🎯 Faza 4: Infrastructure Layer
 
-### 4.1 Repositories
-- [ ] `IRepository<T, TId>` - interfejs
+### 4.1 Repositories ✅
+- [x] `IRepository<T, TId>` - interfejs
   - GetByIdAsync(), SaveAsync(), GetAllAsync(), DeleteAsync()
 
-- [ ] `FileBasedRepository<T, TId>` - klasa abstrakcyjna
+- [x] `FileBasedRepository<T, TId>` - klasa abstrakcyjna
   - _dataFilePath, _logger
   - LoadFromFile(), SaveToFile()
   - Implementacja IRepository
 
-- [ ] `TicketRepository` - dziedziczy z FileBasedRepository
+- [x] `TicketRepository` - dziedziczy z FileBasedRepository
   - _dataFilePath: "Data/tickets.json"
   - GetByNumberAsync(), GetByStatusAsync(), GetByAssignedSpecialistAsync(), GetByTeamAsync(), GetByCategoryAsync()
 
-- [ ] `UserRepository` - dziedziczy z FileBasedRepository
+- [x] `UserRepository` - dziedziczy z FileBasedRepository
   - _dataFilePath: "Data/users.json"
   - GetByEmailAsync(), GetByUserTypeAsync(), GetSpecialistsByTeamAsync()
 
-- [ ] `TeamRepository` - dziedziczy z FileBasedRepository
+- [x] `TeamRepository` - dziedziczy z FileBasedRepository
   - _dataFilePath: "Data/teams.json"
   - GetBySpecializationAsync()
 
-- [ ] `AttachmentRepository`
+- [x] `AttachmentRepository`
   - _uploadDirectory: "Data/uploads"
   - SaveFileAsync(), GetFileAsync(), DeleteFileAsync()
 
@@ -357,7 +357,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 2.3: Team Aggregate (Team)
 - ✅ Faza 3.1: Policy Base (Policy klasa abstrakcyjna)
 - ✅ Faza 3.2: Business Policies (ResolutionPolicy, EscalationPolicy, WorkerEscalationPolicy, SpecialistResolutionPolicy, TicketStatusPolicy)
+- ✅ Faza 4.1: Repositories (IRepository, FileBasedRepository, TicketRepository, UserRepository, TeamRepository, AttachmentRepository)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 4 - Infrastructure Layer
+**Następny krok:** Faza 4.2 - Middleware
