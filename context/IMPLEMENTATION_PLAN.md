@@ -145,8 +145,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 
 ## 🎯 Faza 5: Application Layer
 
-### 5.1 DTOs (Application.DTOs)
-- [ ] Request DTOs:
+### 5.1 DTOs (Application.DTOs) ✅
+- [x] Request DTOs:
   - `CreateTicketRequest` (title, description, category, priority)
   - `MarkAsReadyForVerificationRequest` (resolutionDescription, resolutionType)
   - `ReviewResolutionRequest` (accepted, reviewComment)
@@ -154,7 +154,7 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
   - `AddCommentRequest` (content, isInternal)
   - `UploadAttachmentRequest` (file)
 
-- [ ] Response DTOs:
+- [x] Response DTOs:
   - `TicketDTO` (id, number, title, status, priority, category, assignedSpecialistId, createdAt, updatedAt)
   - `TicketDetailDTO` : TicketDTO (description, comments, attachments, history, escalations, resolution)
   - `CommentDTO` (id, authorId, content, isInternal, createdAt)
@@ -162,6 +162,9 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
   - `UserDTO` (id, email, firstName, lastName, userType, accountStatus)
   - `SupportSpecialistDTO` : UserDTO (teamId, activeTicketCount, activeTicketLimit)
   - `TeamDTO` (id, name, specialization, specialistCount)
+  - `AttachmentDTO` (id, fileName, fileSize, mimeType, uploadedAt, uploadedBy)
+  - `HistoryChangeDTO` (id, changedAt, changeType, previousValue, newValue, performedBy, description)
+  - `ResolutionDTO` (type, description, tags, createdAt)
 
 ### 5.2 Validators (Application.Validators)
 - [ ] `CreateTicketRequestValidator` - FluentValidation
@@ -359,7 +362,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 3.2: Business Policies (ResolutionPolicy, EscalationPolicy, WorkerEscalationPolicy, SpecialistResolutionPolicy, TicketStatusPolicy)
 - ✅ Faza 4.1: Repositories (IRepository, FileBasedRepository, TicketRepository, UserRepository, TeamRepository, AttachmentRepository)
 - ✅ Faza 4.2: Middleware (ExceptionHandlingMiddleware)
+- ✅ Faza 5.1: DTOs (wszystkie Request i Response DTOs)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 5 - Application Layer
+**Następny krok:** Faza 5.2 - Validators (Application.Validators)
