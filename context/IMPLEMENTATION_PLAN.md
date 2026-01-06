@@ -237,8 +237,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 
 ## 🎯 Faza 6: Presentation Layer
 
-### 6.1 Controllers (Presentation.Controllers)
-- [ ] `TicketsController`
+### 6.1 Controllers (Presentation.Controllers) ✅
+- [x] `TicketsController`
   - Dependencies: TicketService, TicketMapper
   - Endpoints:
     - `POST /api/tickets` - CreateTicket
@@ -251,14 +251,14 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
     - `PUT /api/tickets/{id}/assign` - AssignTicket
     - `PUT /api/tickets/{id}/status` - ChangeStatus
 
-- [ ] `UsersController`
+- [x] `UsersController`
   - Dependencies: UserService, UserMapper
   - Endpoints:
     - `POST /api/users/register` - RegisterUser
     - `GET /api/users/{id}` - GetUser
     - `POST /api/users/login` - Login
 
-- [ ] `TeamsController`
+- [x] `TeamsController`
   - Dependencies: TeamService, TeamMapper
   - Endpoints:
     - `POST /api/teams` - CreateTeam
@@ -366,7 +366,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 5.2: Validators (CreateTicketRequestValidator, MarkAsReadyForVerificationRequestValidator, ReviewResolutionRequestValidator, EscalateTicketRequestValidator, AddCommentRequestValidator)
 - ✅ Faza 5.3: Mappers (TicketMapper, UserMapper, TeamMapper, CommentMapper)
 - ✅ Faza 5.4: Services (TicketService, UserService, TeamService)
+- ✅ Faza 6.1: Controllers (TicketsController, UsersController, TeamsController)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 6 - Presentation Layer (Controllers)
+**Następny krok:** Faza 7 - Konfiguracja i Integracja (Dependency Injection, Folder Structure, Data Files)
