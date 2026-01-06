@@ -75,8 +75,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - [x] `Worker` - dziedziczy z User
   - Methods: CanEscalateTicket()
 
-### 2.3 Team Aggregate
-- [ ] `Team` - AggregateRoot<string>
+### 2.3 Team Aggregate ✅
+- [x] `Team` - AggregateRoot<string>
   - Properties: id, name, specialization, maxTickets, specialistIds
   - Methods: AddSpecialist(), RemoveSpecialist(), CanAcceptMore(), GetSpecialistCount()
 
@@ -354,7 +354,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 1: Fundamenty Domain Layer (1.1 Base Classes, 1.2 Enums, 1.3 Value Objects, 1.4 Domain Exceptions)
 - ✅ Faza 2.1: Ticket Aggregate (Ticket + wszystkie powiązane encje i value objects)
 - ✅ Faza 2.2: User Aggregate (User, SupportSpecialist, Administrator, Worker)
+- ✅ Faza 2.3: Team Aggregate (Team)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 2.3 - Team Aggregate
+**Następny krok:** Faza 3 - Policies (Domain.Policies)
