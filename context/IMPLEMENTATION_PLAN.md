@@ -268,13 +268,13 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 
 ## 🎯 Faza 7: Konfiguracja i Integracja
 
-### 7.1 Dependency Injection (Program.cs)
-- [ ] Zarejestruj wszystkie Repositories
-- [ ] Zarejestruj wszystkie Services
-- [ ] Zarejestruj wszystkie Mappers
-- [ ] Zarejestruj wszystkie Policies
-- [ ] Zarejestruj FluentValidation validators
-- [ ] Zarejestruj ExceptionHandlingMiddleware
+### 7.1 Dependency Injection (Program.cs) ✅
+- [x] Zarejestruj wszystkie Repositories
+- [x] Zarejestruj wszystkie Services
+- [x] Zarejestruj wszystkie Mappers
+- [x] Zarejestruj wszystkie Policies
+- [x] Zarejestruj FluentValidation validators
+- [x] Zarejestruj ExceptionHandlingMiddleware
 
 ### 7.2 Folder Structure
 - [ ] Utwórz strukturę folderów:
@@ -367,7 +367,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 5.3: Mappers (TicketMapper, UserMapper, TeamMapper, CommentMapper)
 - ✅ Faza 5.4: Services (TicketService, UserService, TeamService)
 - ✅ Faza 6.1: Controllers (TicketsController, UsersController, TeamsController)
+- ✅ Faza 7.1: Dependency Injection (Program.cs - wszystkie komponenty zarejestrowane)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 7 - Konfiguracja i Integracja (Dependency Injection, Folder Structure, Data Files)
+**Następny krok:** Faza 7.2 - Folder Structure i Faza 7.3 - Data Files
