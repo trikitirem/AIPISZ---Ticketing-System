@@ -166,24 +166,24 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
   - `HistoryChangeDTO` (id, changedAt, changeType, previousValue, newValue, performedBy, description)
   - `ResolutionDTO` (type, description, tags, createdAt)
 
-### 5.2 Validators (Application.Validators)
-- [ ] `CreateTicketRequestValidator` - FluentValidation
+### 5.2 Validators (Application.Validators) ✅
+- [x] `CreateTicketRequestValidator` - FluentValidation
   - Title: NotEmpty, MinLength(5), MaxLength(200)
   - Description: NotEmpty, MinLength(10), MaxLength(5000)
   - Category: NotEmpty, IsEnumName
   - Priority: NotEmpty, IsEnumName
 
-- [ ] `MarkAsReadyForVerificationRequestValidator`
+- [x] `MarkAsReadyForVerificationRequestValidator`
   - ResolutionDescription: NotEmpty, MinLength(10)
   - ResolutionType: NotEmpty, IsEnumName
 
-- [ ] `ReviewResolutionRequestValidator`
+- [x] `ReviewResolutionRequestValidator`
   - ReviewComment: NotEmpty, MinLength(5), MaxLength(5000)
 
-- [ ] `EscalateTicketRequestValidator`
+- [x] `EscalateTicketRequestValidator`
   - EscalationReason: NotEmpty, MinLength(10), MaxLength(5000)
 
-- [ ] `AddCommentRequestValidator`
+- [x] `AddCommentRequestValidator`
   - Content: NotEmpty, MinLength(1), MaxLength(5000)
 
 ### 5.3 Mappers (Application.Mappers)
@@ -363,7 +363,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 4.1: Repositories (IRepository, FileBasedRepository, TicketRepository, UserRepository, TeamRepository, AttachmentRepository)
 - ✅ Faza 4.2: Middleware (ExceptionHandlingMiddleware)
 - ✅ Faza 5.1: DTOs (wszystkie Request i Response DTOs)
+- ✅ Faza 5.2: Validators (CreateTicketRequestValidator, MarkAsReadyForVerificationRequestValidator, ReviewResolutionRequestValidator, EscalateTicketRequestValidator, AddCommentRequestValidator)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 5.2 - Validators (Application.Validators)
+**Następny krok:** Faza 5.3 - Mappers (Application.Mappers)
