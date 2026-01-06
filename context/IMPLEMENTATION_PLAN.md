@@ -205,8 +205,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
   - Map(comment): CommentDTO
   - MapList(comments): List<CommentDTO>
 
-### 5.4 Services (Application.Services)
-- [ ] `TicketService`
+### 5.4 Services (Application.Services) ✅
+- [x] `TicketService`
   - Dependencies: TicketRepository, UserRepository, TeamRepository, ResolutionPolicy, EscalationPolicy, WorkerEscalationPolicy, SpecialistResolutionPolicy, AttachmentRepository, TicketMapper
   - Methods:
     - `CreateTicketAsync(...): Task<Ticket>`
@@ -219,7 +219,7 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
     - `AssignTicketAsync(...): Task`
     - `ChangeTicketStatusAsync(...): Task`
 
-- [ ] `UserService`
+- [x] `UserService`
   - Dependencies: UserRepository, UserMapper
   - Methods:
     - `RegisterUserAsync(...): Task<User>`
@@ -227,7 +227,7 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
     - `GetUserByEmailAsync(...): Task<User>`
     - `AuthenticateAsync(...): Task<User>`
 
-- [ ] `TeamService`
+- [x] `TeamService`
   - Dependencies: TeamRepository, UserRepository, TeamMapper
   - Methods:
     - `CreateTeamAsync(...): Task<Team>`
@@ -365,7 +365,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 5.1: DTOs (wszystkie Request i Response DTOs)
 - ✅ Faza 5.2: Validators (CreateTicketRequestValidator, MarkAsReadyForVerificationRequestValidator, ReviewResolutionRequestValidator, EscalateTicketRequestValidator, AddCommentRequestValidator)
 - ✅ Faza 5.3: Mappers (TicketMapper, UserMapper, TeamMapper, CommentMapper)
+- ✅ Faza 5.4: Services (TicketService, UserService, TeamService)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 5.4 - Services (Application.Services)
+**Następny krok:** Faza 6 - Presentation Layer (Controllers)
