@@ -16,9 +16,18 @@ public class AttachmentRepository
         _uploadDirectory = "Data/uploads";
         _logger = logger;
 
+        EnsureDirectoryExists();
+    }
+
+    /// <summary>
+    /// Upewnia się, że katalog dla załączników istnieje.
+    /// </summary>
+    private void EnsureDirectoryExists()
+    {
         if (!Directory.Exists(_uploadDirectory))
         {
             Directory.CreateDirectory(_uploadDirectory);
+            _logger.LogInformation("Created directory for attachments: {Directory}", _uploadDirectory);
         }
     }
 

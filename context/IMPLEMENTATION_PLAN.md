@@ -276,8 +276,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - [x] Zarejestruj FluentValidation validators
 - [x] Zarejestruj ExceptionHandlingMiddleware
 
-### 7.2 Folder Structure
-- [ ] Utwórz strukturę folderów:
+### 7.2 Folder Structure ✅
+- [x] Utwórz strukturę folderów:
   ```
   Domain/
     Base/
@@ -297,15 +297,17 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
     Middleware/
   Presentation/
     Controllers/
-  Data/ (dla plików JSON)
-  Data/uploads/ (dla załączników)
+  Data/ (dla plików JSON) ✅
+  Data/uploads/ (dla załączników) ✅
   ```
 
-### 7.3 Data Files
-- [ ] Utwórz puste pliki JSON:
-  - `Data/tickets.json` - []
-  - `Data/users.json` - []
-  - `Data/teams.json` - []
+### 7.3 Data Files ✅
+- [x] Utwórz puste pliki JSON:
+  - `Data/tickets.json` - [] (tworzone automatycznie przez TicketRepository)
+  - `Data/users.json` - [] (tworzone automatycznie przez UserRepository)
+  - `Data/teams.json` - [] (tworzone automatycznie przez TeamRepository)
+  
+  **Uwaga:** Pliki są automatycznie tworzone przez FileBasedRepository przy starcie aplikacji, więc nie wymagają ręcznego utworzenia.
 
 ## 🎯 Faza 8: Testowanie i Weryfikacja
 
@@ -368,7 +370,10 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 5.4: Services (TicketService, UserService, TeamService)
 - ✅ Faza 6.1: Controllers (TicketsController, UsersController, TeamsController)
 - ✅ Faza 7.1: Dependency Injection (Program.cs - wszystkie komponenty zarejestrowane)
+- ✅ Faza 7.2: Folder Structure (struktura folderów zgodna z planem, Data/ i Data/uploads/ utworzone)
+- ✅ Faza 7.3: Data Files (pliki JSON tworzone automatycznie przez FileBasedRepository)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
+- ✅ Repozytoria automatycznie tworzą foldery i pliki JSON przy starcie aplikacji
 
-**Następny krok:** Faza 7.2 - Folder Structure i Faza 7.3 - Data Files
+**Następny krok:** Faza 8 - Testowanie i Weryfikacja (opcjonalne)

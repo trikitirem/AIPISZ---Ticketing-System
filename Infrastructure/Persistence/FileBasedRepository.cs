@@ -19,6 +19,38 @@ public abstract class FileBasedRepository<T, TId> : IRepository<T, TId> where T 
     {
         _dataFilePath = dataFilePath;
         _logger = logger;
+
+        EnsureDirectoryExists();
+        EnsureFileExists();
+    }
+
+    /// <summary>
+    /// Upewnia się, że katalog dla pliku danych istnieje.
+    /// </summary>
+    private void EnsureDirectoryExists()
+    {
+        var directory = Path.GetDirectoryName(_dataFilePath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+            _logger.LogInformation("Created directory for data file: {Directory}", directory);
+        }
+    }
+
+    /// <summary>
+    /// Upewnia się, że plik danych istnieje. Jeśli nie istnieje, tworzy pusty plik JSON z pustą tablicą.
+    /// </summary>
+    private void EnsureFileExists()
+    {
+        if (!File.Exists(_dataFilePath))
+        {
+            var emptyJson = JsonSerializer.Serialize(new List<Dictionary<string, object>>(), new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            File.WriteAllText(_dataFilePath, emptyJson);
+            _logger.LogInformation("Created empty data file: {FilePath}", _dataFilePath);
+        }
     }
 
     /// <summary>
