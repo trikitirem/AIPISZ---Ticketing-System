@@ -1,0 +1,947 @@
+@startuml TicketingSystem_Implementation_v5_Updated
+
+!define DPI 300
+skinparam dpi DPI
+scale 0.75
+
+' === STYLING ===
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 9
+skinparam classFontSize 8
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #ffffff
+skinparam classBorderColor #2c3e50
+skinparam classBorderThickness 1.5
+skinparam classArrowColor #34495e
+skinparam packageFontSize 12
+skinparam packageFontStyle bold
+skinparam packageBorderColor #2c3e50
+skinparam packageBorderThickness 2
+skinparam linetype ortho
+skinparam arrowThickness 1.5
+skinparam shadowing false
+skinparam backgroundColor #f8f9fa
+skinparam roundcorner 8
+
+title File-Based State Architecture - Ticketing System v5 (DDD + Worker Escalation)
+
+' =====================
+' DOMAIN LAYER (DOMENA)
+' =====================
+
+package "🎯 DOMAIN (Domena)" #e8f5f0 {
+
+    ' =====================
+    ' BASE CLASSES
+    ' =====================
+    
+    package "Domain.Base" #d1e7f5 {
+        abstract class "Entity<TId>" as Entity {
+            #{abstract} TId Id
+            +{static} Create<T>(id: TId): T
+            +{abstract} ToPrimitive(): Dictionary<string, object>
+            +{static} FromPrimitive<T>(data): T
+            +Equals(obj: object): boolean
+            +GetHashCode(): int
+        }
+
+        abstract class "ValueObject" as ValueObject {
+            +{abstract} Equals(other: ValueObject): boolean
+            +Equals(obj: object): boolean
+            +GetHashCode(): int
+        }
+
+        abstract class "AggregateRoot<TId>" as AggregateRoot {
+            #_uncommittedChanges: List<object>
+            +GetUncommittedChanges(): IReadOnlyList<object>
+            +ClearUncommittedChanges(): void
+            #RaiseEvent(event: object): void
+        }
+
+        Entity <|-- AggregateRoot
+        
+        note bottom of Entity
+            Wszystkie Entity dziedziczą:
+            • Create<T>() - factory method
+            • Equals() - porównanie po ID
+            • GetHashCode()
+        end note
+        
+        note bottom of ValueObject
+            Wszystkie VO dziedziczą:
+            • Equals(ValueObject) - abstrakcyjna
+            • Equals(object) - implementacja
+            • GetHashCode()
+        end note
+    }
+
+    ' =====================
+    ' AGGREGATES
+    ' =====================
+
+    package "Domain.Aggregates" #f5f5f5 {
+
+        ' =====================
+        ' TICKET AGGREGATE
+        ' =====================
+        
+        package "Ticket Aggregate" #e8f5e9 {
+            
+            ' Root
+            class "Ticket" as Ticket <<AggregateRoot>> {
+                -id: string
+                -number: TicketNumber
+                -title: string
+                -description: string
+                -status: TicketStatus
+                -priority: Priority
+                -category: TicketCategory
+                -assignedTeamId: string
+                -assignedSpecialistId: string
+                -createdById: string
+                -_resolution: Resolution
+                -_comments: List<Comment>
+                -_escalations: List<Escalation>
+                -_attachments: List<Attachment>
+                -_history: List<HistoryChange>
+                -_satisfaction: Satisfaction
+                -_sla: SLA
+                -createdAt: DateTime
+                -updatedAt: DateTime
+                -resolvedAt: DateTime
+                ---
+                +ChangeStatus(newStatus): void
+                +AssignTo(specialistId): void
+                +AssignToTeam(teamId): void
+                +MarkAsReadyForVerification(desc, type): void
+                +Escalate(reason, newPriority): void
+                +AddComment(authorId, content, isInternal): void
+                +AddAttachment(attachment): void
+                +AddEscalation(escalation): void
+                +RecordChange(...): void
+                +IsValid(): boolean
+                +GetComments(): IReadOnlyList<Comment>
+                +GetEscalationCount(): int
+                +WasReproducedBefore(): boolean
+            }
+
+            ' Value Objects
+            class "TicketNumber" as TicketNumber <<ValueObject>> {
+                -value: string
+                +Value: string {get}
+            }
+
+            class "Priority" as Priority <<ValueObject>> {
+                -level: PriorityLevel
+                +Level: PriorityLevel {get}
+            }
+
+            ' Entities (Child Entities)
+            class "Comment" as Comment <<Entity>> {
+                -id: string
+                -authorId: string
+                -content: string
+                -isInternal: boolean
+                -createdAt: DateTime
+            }
+
+            class "Resolution" as Resolution <<ValueObject>> {
+                -type: ResolutionType
+                -description: string
+                -tags: List<string>
+                -createdAt: DateTime
+                ---
+                +{static} Create(type, desc): Result<Resolution>
+            }
+
+            class "Escalation" as Escalation <<Entity>> {
+                -id: string
+                -reason: string
+                -previousPriority: Priority
+                -newPriority: Priority
+                -escalatedAt: DateTime
+                -escalatedBy: string
+                -escalationType: EscalationType
+                ---
+                +{static} Create(reason, by, type, priority): Result<Escalation>
+            }
+
+            class "Attachment" as Attachment <<Entity>> {
+                -id: string
+                -fileName: string
+                -fileSize: long
+                -mimeType: string
+                -uploadedAt: DateTime
+                -uploadedBy: string
+                ---
+                +GetStoragePath(): string
+            }
+
+            class "HistoryChange" as HistoryChange <<Entity>> {
+                -id: string
+                -changedAt: DateTime
+                -changeType: string
+                -previousValue: string
+                -newValue: string
+                -performedBy: string
+                -description: string
+            }
+
+            class "Satisfaction" as Satisfaction <<Entity>> {
+                -id: string
+                -rating: int
+                -comment: string
+                -filledAt: DateTime
+                -isProblemResolved: boolean
+            }
+
+            class "SLA" as SLA <<ValueObject>> {
+                -reactionTime: TimeSpan
+                -resolutionTime: TimeSpan
+                -priority: Priority
+                ---
+                +GetReactionTime(): TimeSpan
+                +GetResolutionTime(): TimeSpan
+            }
+
+            ' Enums
+            enum TicketStatus {
+                NOWE
+                PRZYPISANE
+                W_TOKU
+                OCZEKUJE_NA_ODPOWIEDZ
+                GOTOWE_DO_WERYFIKACJI
+                ESKALOWANE
+                ZAMKNIETE
+            }
+
+            enum PriorityLevel {
+                NISKI
+                SREDNI
+                WYSOKI
+                KRYTYCZNY
+            }
+
+            enum ResolutionType {
+                ROZWIAZANE
+                OBEJSCIE_PROBLEMU
+                NIE_MOZNA_ODTWORZYC
+            }
+
+            enum TicketCategory {
+                IT = 1
+                HR = 2
+                FINANCE = 3
+                GENERAL = 4
+                OTHER = 5
+            }
+
+            enum EscalationType {
+                WORKER_INITIATED
+                SLA_TIMEOUT
+                AUTO_ESCALATION
+                ADMIN_INITIATED
+            }
+
+            ' Relationships
+            Ticket --|> AggregateRoot
+            Ticket *-- TicketNumber
+            Ticket *-- TicketStatus
+            Ticket *-- Priority
+            Ticket *-- TicketCategory
+            Ticket *-- "0..1" Resolution
+            Ticket *-- "0..*" Comment
+            Ticket *-- "0..*" Escalation
+            Ticket *-- "0..*" Attachment
+            Ticket *-- "0..*" HistoryChange
+            Ticket *-- "0..1" Satisfaction
+            Ticket *-- SLA
+
+            Resolution --> ResolutionType
+            Priority --> PriorityLevel
+            SLA --> Priority
+            Escalation --> EscalationType
+
+            TicketNumber --|> ValueObject
+            Priority --|> ValueObject
+            Comment --|> Entity
+            Resolution --|> ValueObject
+            Escalation --|> Entity
+            Attachment --|> Entity
+            HistoryChange --|> Entity
+            Satisfaction --|> Entity
+            SLA --|> ValueObject
+
+            note right of Ticket
+                UPDATED v5:
+                • NEW: MarkAsReadyForVerification()
+                • NEW: AddEscalation()
+                • NEW: GetEscalationCount()
+                • NEW: WasReproducedBefore()
+                • Status now includes:
+                  GOTOWE_DO_WERYFIKACJI
+            end note
+        }
+
+        ' =====================
+        ' USER AGGREGATE
+        ' =====================
+        
+        package "User Aggregate" #e3f2fd {
+            
+            abstract class "User" as User <<AggregateRoot>> {
+                -id: string
+                -email: string
+                -firstName: string
+                -lastName: string
+                -passwordHash: string
+                -accountStatus: AccountStatus
+                ---
+                +GetEmail(): string
+                +GetFullName(): string
+                +IsActive(): boolean
+                +{abstract} GetUserType(): UserType
+            }
+
+            class "SupportSpecialist" as SupportSpecialist {
+                -teamId: string
+                -specialization: string
+                -activeTicketLimit: int
+                -currentActiveCount: int
+                ---
+                +CanAcceptMoreTickets(): boolean
+                +IncrementActiveTickets(): void
+                +DecrementActiveTickets(): void
+                +GetUserType(): UserType
+            }
+
+            class "Administrator" as Administrator {
+                +GetUserType(): UserType
+                +EscalateTicket(ticketId): void
+                +ManagePolicies(): void
+            }
+
+            class "Worker" as Worker {
+                +GetUserType(): UserType
+                +CanEscalateTicket(): boolean
+            }
+
+            class "AccountStatus" as AccountStatus <<ValueObject>> {
+                -status: AccountStatusEnum
+                +Status: AccountStatusEnum {get}
+            }
+
+            enum AccountStatusEnum {
+                ACTIVE
+                INACTIVE
+                SUSPENDED
+            }
+
+            enum UserType {
+                WORKER
+                SPECIALIST
+                ADMINISTRATOR
+            }
+
+            ' Relationships
+            User --|> AggregateRoot
+            SupportSpecialist --|> User
+            Administrator --|> User
+            Worker --|> User
+            User *-- AccountStatus
+            AccountStatus --> AccountStatusEnum
+            
+            note bottom of User
+                UPDATED v5:
+                • Worker dodał CanEscalateTicket()
+                • Worker teraz może eskalować
+                  (był to Specialist - ZMIANA!)
+            end note
+        }
+
+        ' =====================
+        ' TEAM AGGREGATE
+        ' =====================
+        
+        package "Team Aggregate" #f3e5f5 {
+            
+            class "Team" as Team <<AggregateRoot>> {
+                -id: string
+                -name: string
+                -specialization: TicketCategory
+                -maxTickets: int
+                -specialistIds: List<string>
+                ---
+                +AddSpecialist(specialistId): void
+                +RemoveSpecialist(specialistId): void
+                +CanAcceptMore(): boolean
+                +GetSpecialistCount(): int
+            }
+
+            Team --|> AggregateRoot
+            Team --> TicketCategory
+        }
+    }
+
+    ' =====================
+    ' POLICIES (NEW v5!)
+    ' =====================
+
+    package "Domain.Policies" #fff3e0 {
+
+        abstract class "Policy" as Policy {
+            #Success(): Result<bool>
+            #Failure(message: string): Result<bool>
+        }
+
+        class "ResolutionPolicy" as ResolutionPolicy {
+            +CanAcceptResolution(ticket, resolution, specialist): Result<bool>
+            ---
+            NEW v5:
+            Prevents "NIE_MOZNA_ODTWORZYC" 
+            when problem was reproducible before
+        }
+
+        class "EscalationPolicy" as EscalationPolicy {
+            +ShouldAutoEscalateTicket(ticket, status, deadline): Result<bool>
+            ---
+            Auto-escalates on:
+            • SLA deadline timeout
+            • 3+ failed attempts
+        }
+
+        class "WorkerEscalationPolicy" as WorkerEscalationPolicy {
+            +CanWorkerEscalate(ticket, worker, reason): Result<bool>
+            ---
+            NEW v5:
+            • Worker can escalate ONLY
+              from GOTOWE_DO_WERYFIKACJI
+            • ONLY creator of ticket
+            • Requires reason
+        }
+
+        class "SpecialistResolutionPolicy" as SpecialistResolutionPolicy {
+            +CanMarkAsReadyForVerification(...): Result<bool>
+            ---
+            NEW v5:
+            • Specialist can mark as READY
+            • Chains to ResolutionPolicy
+            • Prevents bad resolutions
+        }
+
+        class "TicketStatusPolicy" as TicketStatusPolicy {
+            +CanTransitionTo(current, target, performedBy): Result<bool>
+        }
+
+        class "Result<T>" as Result <<ValueObject>> {
+            -IsSuccess: boolean
+            -Value: T
+            -Error: string
+            ---
+            +{static} CreateSuccess(value: T): Result<T>
+            +{static} CreateFailure(error: string): Result<T>
+        }
+
+        ResolutionPolicy --|> Policy
+        EscalationPolicy --|> Policy
+        WorkerEscalationPolicy --|> Policy
+        SpecialistResolutionPolicy --|> Policy
+        TicketStatusPolicy --|> Policy
+        Result --|> ValueObject
+
+        note right of ResolutionPolicy
+            POLICY 1:
+            Validates resolution quality.
+            Prevents invalid "NOT_REPRODUCIBLE"
+            for reproducible problems.
+        end note
+
+        note right of WorkerEscalationPolicy
+            POLICY 2 (NEW):
+            Only Worker can escalate.
+            GOTOWE_DO_WERYFIKACJI → ESKALOWANE
+        end note
+
+        note right of SpecialistResolutionPolicy
+            POLICY 3 (NEW):
+            Specialist marks as READY.
+            Uses ResolutionPolicy internally.
+        end note
+
+        note right of EscalationPolicy
+            POLICY 4:
+            Auto-escalation triggers.
+            SLA timeout or many failures.
+        end note
+    }
+
+    ' =====================
+    ' EXCEPTIONS
+    ' =====================
+
+    package "Domain.Exceptions" #ffebee {
+
+        abstract class "DomainException" as DomainException {
+            -Code: int
+            -Message: string
+            -Details: string
+            ---
+            #DomainException(code: int, message: string, details: string)
+        }
+
+        class "ForbiddenException" as ForbiddenException {
+        }
+
+        class "UnauthorizedException" as UnauthorizedException {
+        }
+
+        class "NotFoundException" as NotFoundException {
+        }
+
+        class "ConflictException" as ConflictException {
+        }
+
+        class "ValidationException" as ValidationException {
+        }
+
+        class "InternalServerException" as InternalServerException {
+        }
+
+        ForbiddenException --|> DomainException
+        UnauthorizedException --|> DomainException
+        NotFoundException --|> DomainException
+        ConflictException --|> DomainException
+        ValidationException --|> DomainException
+        InternalServerException --|> DomainException
+    }
+
+}
+
+' =====================
+' INFRASTRUCTURE LAYER
+' =====================
+
+package "🔧 INFRASTRUCTURE (Infrastruktura)" #fff9f0 {
+
+    package "Infrastructure.Persistence" #ffebee {
+        interface "IRepository<T, TId>" as IRepository {
+            +GetByIdAsync(id: TId): Task<T>
+            +SaveAsync(aggregate: T): Task
+            +GetAllAsync(): Task<List<T>>
+            +DeleteAsync(id: TId): Task
+        }
+
+        abstract class "FileBasedRepository<T, TId>" as FileBasedRepository {
+            #_dataFilePath: string
+            #_logger: ILogger
+            ---
+            #LoadFromFile(): List<T>
+            #SaveToFile(items: List<T>): void
+            +GetByIdAsync(id: TId): Task<T>
+            +SaveAsync(aggregate: T): Task
+            +GetAllAsync(): Task<List<T>>
+            +DeleteAsync(id: TId): Task
+        }
+
+        class "TicketRepository" as TicketRepository {
+            -_dataFilePath: "Data/tickets.json"
+            ---
+            +GetByNumberAsync(...): Task<Ticket>
+            +GetByStatusAsync(...): Task<List<Ticket>>
+            +GetByAssignedSpecialistAsync(...): Task<List<Ticket>>
+            +GetByTeamAsync(...): Task<List<Ticket>>
+            +GetByCategoryAsync(...): Task<List<Ticket>>
+        }
+
+        class "UserRepository" as UserRepository {
+            -_dataFilePath: "Data/users.json"
+            ---
+            +GetByEmailAsync(...): Task<User>
+            +GetByUserTypeAsync(...): Task<List<User>>
+            +GetSpecialistsByTeamAsync(...): Task<List<SupportSpecialist>>
+        }
+
+        class "TeamRepository" as TeamRepository {
+            -_dataFilePath: "Data/teams.json"
+            ---
+            +GetBySpecializationAsync(...): Task<List<Team>>
+        }
+
+        class "AttachmentRepository" as AttachmentRepository {
+            -_uploadDirectory: "Data/uploads"
+            ---
+            +SaveFileAsync(...): Task<Attachment>
+            +GetFileAsync(...): Task<Stream>
+            +DeleteFileAsync(...): Task
+        }
+
+        FileBasedRepository --|> IRepository
+        TicketRepository --|> FileBasedRepository
+        UserRepository --|> FileBasedRepository
+        TeamRepository --|> FileBasedRepository
+
+        note right of FileBasedRepository
+            File-Based Storage:
+            • Wczytaj JSON
+            • Deserializuj do agregatu
+            • Modyfikuj
+            • Serializuj do JSON
+            • Zapisz
+        end note
+    }
+
+    package "Infrastructure.Middleware" #ffebee {
+
+        class "ExceptionHandlingMiddleware" as ExceptionHandlingMiddleware {
+            -_next: RequestDelegate
+            -_logger: ILogger
+            ---
+            +InvokeAsync(context: HttpContext): Task
+        }
+
+        note right of ExceptionHandlingMiddleware
+            Global Exception Handler:
+            • Catch DomainException
+            • Return JSON response
+            • HTTP Status = exception.Code
+            • No stack trace in response
+        end note
+    }
+}
+
+' =====================
+' APPLICATION LAYER
+' =====================
+
+package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
+
+    package "Application.DTOs" #e8f4f8 {
+        
+        class "TicketDTO" as TicketDTO {
+            -id: string
+            -number: string
+            -title: string
+            -status: string
+            -priority: string
+            -category: string
+            -assignedSpecialistId: string
+            -createdAt: DateTime
+            -updatedAt: DateTime
+        }
+
+        class "TicketDetailDTO" as TicketDetailDTO {
+            -id: string
+            -number: string
+            -title: string
+            -description: string
+            -status: string
+            -priority: string
+            -comments: List<CommentDTO>
+            -attachments: List<AttachmentDTO>
+            -history: List<HistoryChangeDTO>
+            -escalations: List<EscalationDTO>
+        }
+
+        class "CommentDTO" as CommentDTO {
+            -id: string
+            -authorId: string
+            -content: string
+            -isInternal: boolean
+            -createdAt: DateTime
+        }
+
+        class "EscalationDTO" as EscalationDTO {
+            -id: string
+            -reason: string
+            -escalatedBy: string
+            -escalationType: string
+            -createdAt: DateTime
+        }
+
+        class "UserDTO" as UserDTO {
+            -id: string
+            -email: string
+            -firstName: string
+            -lastName: string
+            -userType: string
+            -accountStatus: string
+        }
+
+        class "SupportSpecialistDTO" as SupportSpecialistDTO {
+            -id: string
+            -email: string
+            -teamId: string
+            -activeTicketCount: int
+            -activeTicketLimit: int
+        }
+
+        class "TeamDTO" as TeamDTO {
+            -id: string
+            -name: string
+            -specialization: string
+            -specialistCount: int
+        }
+
+        class "CreateTicketRequest" as CreateTicketRequest {
+            +title: string
+            +description: string
+            +category: string
+            +priority: string
+        }
+
+        class "MarkAsReadyForVerificationRequest" as MarkAsReadyForVerificationRequest {
+            +resolutionDescription: string
+            +resolutionType: string
+        }
+
+        class "ReviewResolutionRequest" as ReviewResolutionRequest {
+            +accepted: boolean
+            +reviewComment: string
+        }
+
+        class "EscalateTicketRequest" as EscalateTicketRequest {
+            +escalationReason: string
+        }
+
+        note bottom of TicketDTO
+            UPDATED v5:
+            DTOs now include escalations
+            and new verification status
+        end note
+    }
+
+    package "Application.Mappers" #e8f4f8 {
+        
+        class "TicketMapper" as TicketMapper {
+            +Map(ticket: Ticket): TicketDTO
+            +MapDetail(ticket, comments): TicketDetailDTO
+            +MapList(tickets): List<TicketDTO>
+        }
+
+        class "UserMapper" as UserMapper {
+            +Map(user: User): UserDTO
+            +MapSpecialist(specialist): SupportSpecialistDTO
+            +MapList(users): List<UserDTO>
+        }
+
+        class "TeamMapper" as TeamMapper {
+            +Map(team: Team): TeamDTO
+            +MapList(teams): List<TeamDTO>
+        }
+
+        class "CommentMapper" as CommentMapper {
+            +Map(comment: Comment): CommentDTO
+            +MapList(comments): List<CommentDTO>
+        }
+
+        note bottom of TicketMapper
+            Mappers convert Domain Models → DTOs
+            Isolated from business logic
+            Reusable across layers
+        end note
+    }
+
+    package "Application.Services" #f3e5f5 {
+
+        class "TicketService" as TicketService {
+            -_ticketRepository: ITicketRepository
+            -_userRepository: IUserRepository
+            -_teamRepository: ITeamRepository
+            -_resolutionPolicy: ResolutionPolicy
+            -_escalationPolicy: EscalationPolicy
+            -_workerEscalationPolicy: WorkerEscalationPolicy
+            -_specialistResolutionPolicy: SpecialistResolutionPolicy
+            -_attachmentRepository: AttachmentRepository
+            -_ticketMapper: TicketMapper
+            ---
+            +CreateTicketAsync(...): Task<Ticket>
+            +GetTicketByIdAsync(...): Task<Ticket>
+            +MarkAsReadyForVerificationAsync(...): Task
+            +ReviewResolutionAsync(...): Task
+            +EscalateTicketAsync(...): Task
+            +AddCommentAsync(...): Task
+            +UploadAttachmentAsync(...): Task
+        }
+
+        class "UserService" as UserService {
+            -_userRepository: IUserRepository
+            -_userMapper: UserMapper
+            ---
+            +RegisterUserAsync(...): Task<User>
+            +GetUserByIdAsync(...): Task<User>
+            +GetUserByEmailAsync(...): Task<User>
+            +AuthenticateAsync(...): Task<User>
+        }
+
+        class "TeamService" as TeamService {
+            -_teamRepository: ITeamRepository
+            -_userRepository: IUserRepository
+            -_teamMapper: TeamMapper
+            ---
+            +CreateTeamAsync(...): Task<Team>
+            +GetTeamByIdAsync(...): Task<Team>
+            +AddSpecialistToTeamAsync(...): Task
+            +RemoveSpecialistFromTeamAsync(...): Task
+        }
+
+        TicketService --> TicketRepository
+        TicketService --> UserRepository
+        TicketService --> TeamRepository
+        TicketService --> ResolutionPolicy
+        TicketService --> EscalationPolicy
+        TicketService --> WorkerEscalationPolicy
+        TicketService --> SpecialistResolutionPolicy
+        TicketService --> AttachmentRepository
+        TicketService --> TicketMapper
+
+        UserService --> UserRepository
+        UserService --> UserMapper
+        
+        TeamService --> TeamRepository
+        TeamService --> UserRepository
+        TeamService --> TeamMapper
+
+        note bottom of TicketService
+            UPDATED v5:
+            NEW methods:
+            • MarkAsReadyForVerificationAsync()
+            • ReviewResolutionAsync()
+            • EscalateTicketAsync()
+            
+            Uses 4 policies:
+            1. ResolutionPolicy
+            2. EscalationPolicy
+            3. WorkerEscalationPolicy (NEW)
+            4. SpecialistResolutionPolicy (NEW)
+        end note
+    }
+
+    package "Application.Validators" #e8f4f8 {
+        
+        class "CreateTicketRequestValidator" as CreateTicketRequestValidator {
+        }
+
+        class "MarkAsReadyForVerificationRequestValidator" as MarkAsReadyForVerificationRequestValidator {
+        }
+
+        class "ReviewResolutionRequestValidator" as ReviewResolutionRequestValidator {
+        }
+
+        class "EscalateTicketRequestValidator" as EscalateTicketRequestValidator {
+        }
+    }
+}
+
+' =====================
+' PRESENTATION LAYER
+' =====================
+
+package "🎨 PRESENTATION (Prezentacja)" #fffacd {
+
+    package "Presentation.Controllers" #e3f2fd {
+
+        class "TicketsController" as TicketsController {
+            -_ticketService: ITicketService
+            -_ticketMapper: TicketMapper
+            ---
+            +POST CreateTicket(req): Task<IActionResult>
+            +GET GetTicket(id: string): Task<IActionResult>
+            +POST MarkAsReadyForVerification(id, req): Task<IActionResult>
+            +POST ReviewResolution(id, req): Task<IActionResult>
+            +POST Escalate(id, req): Task<IActionResult>
+            +POST AddComment(id: string): Task<IActionResult>
+            +POST UploadAttachment(id: string): Task<IActionResult>
+        }
+
+        class "UsersController" as UsersController {
+            -_userService: IUserService
+            -_userMapper: UserMapper
+            ---
+            +POST Register(): Task<IActionResult>
+            +GET GetUser(id: string): Task<IActionResult>
+            +POST Login(): Task<IActionResult>
+        }
+
+        class "TeamsController" as TeamsController {
+            -_teamService: ITeamService
+            -_teamMapper: TeamMapper
+            ---
+            +POST CreateTeam(): Task<IActionResult>
+            +GET GetTeam(id: string): Task<IActionResult>
+            +GET GetTeamMembers(id: string): Task<IActionResult>
+            +POST AddSpecialist(id: string): Task<IActionResult>
+        }
+
+        TicketsController --> TicketService
+        TicketsController --> TicketMapper
+        UsersController --> UserService
+        UsersController --> UserMapper
+        TeamsController --> TeamService
+        TeamsController --> TeamMapper
+
+        note bottom of TicketsController
+            UPDATED v5:
+            NEW endpoints:
+            • POST /.../mark-ready-for-verification
+            • POST /.../review-resolution
+            • POST /.../escalate
+            
+            Specialist marks READY
+            Worker reviews (accepts/escalates)
+            Worker escalates with reason
+        end note
+    }
+}
+
+' =====================
+' WORKFLOW FLOW
+' =====================
+
+package "📊 WORKFLOW FLOW v5" #f5f5f5 {
+    
+    note top of TicketsController
+        UPDATED WORKFLOW:
+        
+        1️⃣ Worker creates ticket (NOWE)
+        2️⃣ Admin/System assigns (PRZYPISANE)
+        3️⃣ Specialist works (W_TOKU)
+        4️⃣ Specialist marks READY
+           (GOTOWE_DO_WERYFIKACJI)
+           [Uses SpecialistResolutionPolicy]
+        
+        5️⃣ Worker reviews:
+           ✅ Accepts → ZAMKNIĘTE
+           ❌ Escalates → ESKALOWANE
+              [Uses WorkerEscalationPolicy]
+        
+        6️⃣ Admin processes escalation
+           • Reassigns to Senior Spec
+           • Changes priority
+           • Or resolves himself
+        
+        AUTO: If SLA timeout or 3+ fails
+        [Uses EscalationPolicy]
+    end note
+}
+
+' =====================
+' LEGEND
+' =====================
+
+legend right
+    |<#e8f5f0> DOMAIN Layer ✨ |
+    |<#d1e7f5> Base Classes |
+    |<#e8f5e9> Ticket Aggregate |
+    |<#e3f2fd> User Aggregate |
+    |<#f3e5f5> Team Aggregate |
+    |<#fff3e0> Policies (4x) 🔴 |
+    |<#ffebee> Exceptions |
+    |<#fff9f0> INFRASTRUCTURE Layer |
+    |<#f0f8ff> APPLICATION Layer |
+    |<#e8f4f8> DTOs & Validators |
+    |<#fffacd> PRESENTATION Layer |
+    | 🔴 = Updated in v5 |
+    | ✨ = Key changes |
+endlegend
+
+@enduml
