@@ -137,8 +137,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
   - _uploadDirectory: "Data/uploads"
   - SaveFileAsync(), GetFileAsync(), DeleteFileAsync()
 
-### 4.2 Middleware
-- [ ] `ExceptionHandlingMiddleware`
+### 4.2 Middleware ✅
+- [x] `ExceptionHandlingMiddleware`
   - Przechwytuje DomainException
   - Zwraca JSON response z odpowiednim HTTP status code
   - Loguje błędy
@@ -358,7 +358,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 3.1: Policy Base (Policy klasa abstrakcyjna)
 - ✅ Faza 3.2: Business Policies (ResolutionPolicy, EscalationPolicy, WorkerEscalationPolicy, SpecialistResolutionPolicy, TicketStatusPolicy)
 - ✅ Faza 4.1: Repositories (IRepository, FileBasedRepository, TicketRepository, UserRepository, TeamRepository, AttachmentRepository)
+- ✅ Faza 4.2: Middleware (ExceptionHandlingMiddleware)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 4.2 - Middleware
+**Następny krok:** Faza 5 - Application Layer
