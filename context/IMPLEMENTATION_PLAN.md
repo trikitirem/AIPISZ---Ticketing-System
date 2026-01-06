@@ -85,28 +85,28 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 ### 3.1 Policy Base ✅
 - [x] `Policy` - klasa abstrakcyjna z Success() i Failure() helper methods
 
-### 3.2 Business Policies
-- [ ] `ResolutionPolicy`
+### 3.2 Business Policies ✅
+- [x] `ResolutionPolicy`
   - `CanAcceptResolution(ticket, resolution, specialist): Result<bool>`
   - Zapobiega "NIE_MOZNA_ODTWORZYC" dla łatwo odtwarzalnych problemów
 
-- [ ] `EscalationPolicy`
+- [x] `EscalationPolicy`
   - `ShouldAutoEscalateTicket(ticket, status, deadline): Result<bool>`
   - Auto-eskalacja przy SLA timeout lub 3+ nieudanych próbach
 
-- [ ] `WorkerEscalationPolicy`
+- [x] `WorkerEscalationPolicy`
   - `CanWorkerEscalate(ticket, worker, reason): Result<bool>`
   - Worker może eskalować TYLKO ze statusu GOTOWE_DO_WERYFIKACJI
   - Tylko creator ticketu może eskalować
   - Wymaga powodu eskalacji
 
-- [ ] `SpecialistResolutionPolicy`
+- [x] `SpecialistResolutionPolicy`
   - `CanMarkAsReadyForVerification(ticket, specialist, resolution): Result<bool>`
   - Specialist może oznaczyć jako READY tylko jeśli jest przypisany
   - Musi być w statusie W_TOKU
   - Używa ResolutionPolicy wewnętrznie
 
-- [ ] `TicketStatusPolicy`
+- [x] `TicketStatusPolicy`
   - `CanTransitionTo(current, target, performedBy): Result<bool>`
   - Waliduje przejścia między statusami
 
@@ -356,7 +356,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 2.2: User Aggregate (User, SupportSpecialist, Administrator, Worker)
 - ✅ Faza 2.3: Team Aggregate (Team)
 - ✅ Faza 3.1: Policy Base (Policy klasa abstrakcyjna)
+- ✅ Faza 3.2: Business Policies (ResolutionPolicy, EscalationPolicy, WorkerEscalationPolicy, SpecialistResolutionPolicy, TicketStatusPolicy)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 3.2 - Business Policies
+**Następny krok:** Faza 4 - Infrastructure Layer
