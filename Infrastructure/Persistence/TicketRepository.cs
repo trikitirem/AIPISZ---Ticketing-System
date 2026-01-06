@@ -84,7 +84,7 @@ public class TicketRepository : FileBasedRepository<Ticket, string>
 
         if (constructor is null)
         {
-            throw new InvalidOperationException("Cannot find private constructor for Ticket");
+            throw new InvalidOperationException("CANNOT_FIND_PRIVATE_CONSTRUCTOR");
         }
 
         return (Ticket)constructor.Invoke(new object[] { id, number, title, description, category, priority, createdById });

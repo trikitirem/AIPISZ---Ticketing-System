@@ -58,7 +58,7 @@ public class TicketService
         var ticket = await _ticketRepository.GetByIdAsync(ticketId);
         if (ticket is null)
         {
-            throw new NotFoundException("Ticket not found", ticketId);
+            throw new NotFoundException("TICKET_NOT_FOUND", ticketId);
         }
         return ticket;
     }
@@ -68,25 +68,25 @@ public class TicketService
         var ticket = await _ticketRepository.GetByIdAsync(ticketId);
         if (ticket is null)
         {
-            throw new NotFoundException("Ticket not found", ticketId);
+            throw new NotFoundException("TICKET_NOT_FOUND", ticketId);
         }
 
         var specialist = await _userRepository.GetByIdAsync(specialistId);
         if (specialist is not Domain.Aggregates.User.SupportSpecialist supportSpecialist)
         {
-            throw new ValidationException("User is not a specialist", specialistId);
+            throw new ValidationException("USER_NOT_SPECIALIST", specialistId);
         }
 
         var resolutionResult = Resolution.Create(resolutionType, resolutionDescription);
         if (!resolutionResult.IsSuccess || resolutionResult.Value is null)
         {
-            throw new ValidationException("Invalid resolution", resolutionResult.Error ?? "Cannot create resolution");
+            throw new ValidationException("INVALID_RESOLUTION", resolutionResult.Error ?? "Cannot create resolution");
         }
 
         var policyResult = _specialistResolutionPolicy.CanMarkAsReadyForVerification(ticket, supportSpecialist, resolutionResult.Value);
         if (!policyResult.IsSuccess)
         {
-            throw new ConflictException("Cannot mark as ready", policyResult.Error ?? "Policy validation failed");
+            throw new ConflictException("CANNOT_MARK_AS_READY", policyResult.Error ?? "Policy validation failed");
         }
 
         ticket.MarkAsReadyForVerification(resolutionDescription, resolutionType);
@@ -98,18 +98,18 @@ public class TicketService
         var ticket = await _ticketRepository.GetByIdAsync(ticketId);
         if (ticket is null)
         {
-            throw new NotFoundException("Ticket not found", ticketId);
+            throw new NotFoundException("TICKET_NOT_FOUND", ticketId);
         }
 
         if (ticket.Status != TicketStatus.GOTOWE_DO_WERYFIKACJI)
         {
-            throw new ConflictException("Ticket is not ready for verification", ticketId);
+            throw new ConflictException("TICKET_NOT_READY_FOR_VERIFICATION", ticketId);
         }
 
         var worker = await _userRepository.GetByIdAsync(workerId);
         if (worker is not Domain.Aggregates.User.Worker workerUser)
         {
-            throw new ValidationException("User is not a worker", workerId);
+            throw new ValidationException("USER_NOT_WORKER", workerId);
         }
 
         if (accepted)
@@ -130,19 +130,19 @@ public class TicketService
         var ticket = await _ticketRepository.GetByIdAsync(ticketId);
         if (ticket is null)
         {
-            throw new NotFoundException("Ticket not found", ticketId);
+            throw new NotFoundException("TICKET_NOT_FOUND", ticketId);
         }
 
         var worker = await _userRepository.GetByIdAsync(escalatedBy);
         if (worker is not Domain.Aggregates.User.Worker workerUser)
         {
-            throw new ValidationException("User is not a worker", escalatedBy);
+            throw new ValidationException("USER_NOT_WORKER", escalatedBy);
         }
 
         var policyResult = _workerEscalationPolicy.CanWorkerEscalate(ticket, workerUser, escalationReason);
         if (!policyResult.IsSuccess)
         {
-            throw new ForbiddenException("Cannot escalate ticket", policyResult.Error ?? "Policy validation failed");
+            throw new ForbiddenException("CANNOT_ESCALATE_TICKET", policyResult.Error ?? "Policy validation failed");
         }
 
         var escalationResult = Escalation.Create(
@@ -156,7 +156,7 @@ public class TicketService
 
         if (!escalationResult.IsSuccess || escalationResult.Value is null)
         {
-            throw new ValidationException("Cannot create escalation", escalationResult.Error ?? "Escalation creation failed");
+            throw new ValidationException("CANNOT_CREATE_ESCALATION", escalationResult.Error ?? "Escalation creation failed");
         }
 
         ticket.Escalate(escalationReason);
@@ -169,7 +169,7 @@ public class TicketService
         var ticket = await _ticketRepository.GetByIdAsync(ticketId);
         if (ticket is null)
         {
-            throw new NotFoundException("Ticket not found", ticketId);
+            throw new NotFoundException("TICKET_NOT_FOUND", ticketId);
         }
 
         ticket.AddComment(authorId, content, isInternal);
@@ -181,7 +181,7 @@ public class TicketService
         var ticket = await _ticketRepository.GetByIdAsync(ticketId);
         if (ticket is null)
         {
-            throw new NotFoundException("Ticket not found", ticketId);
+            throw new NotFoundException("TICKET_NOT_FOUND", ticketId);
         }
 
         var attachment = Attachment.Create(Guid.NewGuid().ToString(), fileName, fileSize, mimeType, uploadedBy);
@@ -197,7 +197,7 @@ public class TicketService
         var ticket = await _ticketRepository.GetByIdAsync(ticketId);
         if (ticket is null)
         {
-            throw new NotFoundException("Ticket not found", ticketId);
+            throw new NotFoundException("TICKET_NOT_FOUND", ticketId);
         }
 
         if (!string.IsNullOrWhiteSpace(specialistId))
@@ -205,7 +205,7 @@ public class TicketService
             var specialist = await _userRepository.GetByIdAsync(specialistId);
             if (specialist is not Domain.Aggregates.User.SupportSpecialist)
             {
-                throw new ValidationException("User is not a specialist", specialistId);
+                throw new ValidationException("USER_NOT_SPECIALIST", specialistId);
             }
 
             ticket.AssignTo(specialistId);
@@ -215,14 +215,14 @@ public class TicketService
             var team = await _teamRepository.GetByIdAsync(teamId);
             if (team is null)
             {
-                throw new NotFoundException("Team not found", teamId);
+                throw new NotFoundException("TEAM_NOT_FOUND", teamId);
             }
 
             ticket.AssignToTeam(teamId);
         }
         else
         {
-            throw new ValidationException("Either specialistId or teamId must be provided", string.Empty);
+            throw new ValidationException("SPECIALIST_OR_TEAM_ID_REQUIRED", string.Empty);
         }
 
         await _ticketRepository.SaveAsync(ticket);
@@ -233,20 +233,20 @@ public class TicketService
         var ticket = await _ticketRepository.GetByIdAsync(ticketId);
         if (ticket is null)
         {
-            throw new NotFoundException("Ticket not found", ticketId);
+            throw new NotFoundException("TICKET_NOT_FOUND", ticketId);
         }
 
         var user = await _userRepository.GetByIdAsync(performedBy);
         if (user is null)
         {
-            throw new NotFoundException("User not found", performedBy);
+            throw new NotFoundException("USER_NOT_FOUND", performedBy);
         }
 
         var statusPolicy = new TicketStatusPolicy();
         var policyResult = statusPolicy.CanTransitionTo(ticket.Status, newStatus, user.GetUserType());
         if (!policyResult.IsSuccess)
         {
-            throw new ConflictException("Cannot change status", policyResult.Error ?? "Status transition not allowed");
+            throw new ConflictException("CANNOT_CHANGE_STATUS", policyResult.Error ?? "Status transition not allowed");
         }
 
         ticket.ChangeStatus(newStatus);

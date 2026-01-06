@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using TicketingSystem.Domain.Aggregates.Ticket;
+using TicketingSystem.Domain.Exceptions;
 
 namespace TicketingSystem.Infrastructure.Persistence;
 
@@ -69,7 +70,7 @@ public class AttachmentRepository
             var filePath = GetFilePath(attachment);
             if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException($"Attachment file not found: {attachment.FileName}");
+                throw new NotFoundException("ATTACHMENT_FILE_NOT_FOUND", attachment.FileName);
             }
 
             var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);

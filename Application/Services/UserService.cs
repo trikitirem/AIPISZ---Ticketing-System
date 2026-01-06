@@ -25,7 +25,7 @@ public class UserService
         var existingUser = await _userRepository.GetByEmailAsync(email);
         if (existingUser is not null)
         {
-            throw new ConflictException("User with this email already exists", email);
+            throw new ConflictException("USER_EMAIL_ALREADY_EXISTS", email);
         }
 
         User user = userType switch
@@ -33,7 +33,7 @@ public class UserService
             UserType.WORKER => Worker.Create(id, email, firstName, lastName, accountStatus),
             UserType.SPECIALIST => SupportSpecialist.Create(id, email, firstName, lastName, accountStatus),
             UserType.ADMINISTRATOR => Administrator.Create(id, email, firstName, lastName, accountStatus),
-            _ => throw new ValidationException("Invalid user type", userType.ToString())
+            _ => throw new ValidationException("INVALID_USER_TYPE", userType.ToString())
         };
 
         await _userRepository.SaveAsync(user);
@@ -45,7 +45,7 @@ public class UserService
         var user = await _userRepository.GetByIdAsync(userId);
         if (user is null)
         {
-            throw new NotFoundException("User not found", userId);
+            throw new NotFoundException("USER_NOT_FOUND", userId);
         }
         return user;
     }
@@ -55,7 +55,7 @@ public class UserService
         var user = await _userRepository.GetByEmailAsync(email);
         if (user is null)
         {
-            throw new NotFoundException("User not found", email);
+            throw new NotFoundException("USER_NOT_FOUND", email);
         }
         return user;
     }
@@ -65,12 +65,12 @@ public class UserService
         var user = await _userRepository.GetByEmailAsync(email);
         if (user is null)
         {
-            throw new UnauthorizedException("Invalid email", email);
+            throw new UnauthorizedException("INVALID_EMAIL", email);
         }
 
         if (!user.IsActive())
         {
-            throw new ForbiddenException("User account is not active", email);
+            throw new ForbiddenException("USER_ACCOUNT_NOT_ACTIVE", email);
         }
 
         return user;

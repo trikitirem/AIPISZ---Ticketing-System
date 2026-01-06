@@ -79,7 +79,7 @@ public class ExceptionHandlingMiddleware
             error = new
             {
                 code = 500,
-                message = "An unexpected error occurred",
+                message = "UNEXPECTED_ERROR_OCCURRED",
                 details = "Please contact support if the problem persists"
             }
         };

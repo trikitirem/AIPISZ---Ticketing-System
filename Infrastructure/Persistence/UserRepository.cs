@@ -32,7 +32,7 @@ public class UserRepository : FileBasedRepository<User, string>
                 UserType.SPECIALIST => CreateSupportSpecialist(id, email, firstName, lastName, accountStatusEnum, data),
                 UserType.ADMINISTRATOR => Administrator.Create(id, email, firstName, lastName, accountStatusEnum),
                 UserType.WORKER => Worker.Create(id, email, firstName, lastName, accountStatusEnum),
-                _ => throw new ArgumentException($"Unknown user type: {userType}")
+                _ => throw new ArgumentException($"UNKNOWN_USER_TYPE: {userType}")
             };
 
             return user;

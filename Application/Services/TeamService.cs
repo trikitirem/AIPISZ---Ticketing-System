@@ -35,7 +35,7 @@ public class TeamService
         var team = await _teamRepository.GetByIdAsync(teamId);
         if (team is null)
         {
-            throw new NotFoundException("Team not found", teamId);
+            throw new NotFoundException("TEAM_NOT_FOUND", teamId);
         }
         return team;
     }
@@ -45,13 +45,13 @@ public class TeamService
         var team = await _teamRepository.GetByIdAsync(teamId);
         if (team is null)
         {
-            throw new NotFoundException("Team not found", teamId);
+            throw new NotFoundException("TEAM_NOT_FOUND", teamId);
         }
 
         var specialist = await _userRepository.GetByIdAsync(specialistId);
         if (specialist is not SupportSpecialist)
         {
-            throw new ValidationException("User is not a specialist", specialistId);
+            throw new ValidationException("USER_NOT_SPECIALIST", specialistId);
         }
 
         team.AddSpecialist(specialistId);
@@ -63,7 +63,7 @@ public class TeamService
         var team = await _teamRepository.GetByIdAsync(teamId);
         if (team is null)
         {
-            throw new NotFoundException("Team not found", teamId);
+            throw new NotFoundException("TEAM_NOT_FOUND", teamId);
         }
 
         team.RemoveSpecialist(specialistId);
