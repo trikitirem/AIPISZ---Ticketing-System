@@ -78,13 +78,15 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPost("{id}/attachments")]
-    public async Task<ActionResult<AttachmentDTO>> UploadAttachment(string id, [FromForm] IFormFile file, [FromQuery] string uploadedBy)
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<AttachmentDTO>> UploadAttachment(string id, [FromForm] UploadAttachmentRequest request, [FromQuery] string uploadedBy)
     {
-        if (file is null || file.Length == 0)
+        if (request?.File is null || request.File.Length == 0)
         {
             return BadRequest("File is required");
         }
 
+        var file = request.File;
         using var stream = file.OpenReadStream();
         var attachment = await _ticketService.UploadAttachmentAsync(id, uploadedBy, file.FileName, file.Length, file.ContentType, stream);
 
