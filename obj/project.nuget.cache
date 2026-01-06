@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "d3Kd1vBX+msgbYDFPx1B+RQ4yNlHJ0Q53V6kUWzHdzZDeEUzNseMs5FYnteIt/COkUvV4L18LijDBdEldkZJVQ==",
+  "dgSpecHash": "fGhz/bSrN6nQiTm/s/g9D3BmYj6DZPfA20PXqDadvAnaNWdncdO+2kiVM5EEL1LGHuxph+qCJ0RbuwhWIS7Y5g==",
   "success": true,
   "projectFilePath": "/home/user/studia/TicketingSystem/TicketingSystem.csproj",
   "expectedPackageFiles": [
-    "/home/user/.nuget/packages/fluentvalidation/11.11.0/fluentvalidation.11.11.0.nupkg.sha512",
+    "/home/user/.nuget/packages/fluentvalidation/12.1.1/fluentvalidation.12.1.1.nupkg.sha512",
     "/home/user/.nuget/packages/fluentvalidation.aspnetcore/11.3.1/fluentvalidation.aspnetcore.11.3.1.nupkg.sha512",
     "/home/user/.nuget/packages/fluentvalidation.dependencyinjectionextensions/11.11.0/fluentvalidation.dependencyinjectionextensions.11.11.0.nupkg.sha512",
     "/home/user/.nuget/packages/microsoft.aspnetcore.openapi/8.0.22/microsoft.aspnetcore.openapi.8.0.22.nupkg.sha512",

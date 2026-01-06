@@ -1,4 +1,7 @@
+using FluentValidation;
 using TicketingSystem.Domain.Base;
+using TicketingSystem.Domain.Validators;
+using DomainExceptions = TicketingSystem.Domain.Exceptions;
 
 namespace TicketingSystem.Domain.ValueObjects;
 
@@ -21,9 +24,13 @@ public class TicketNumber : ValueObject
 
     public static TicketNumber Create(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        var validator = new TicketNumberValidator();
+        var validationResult = validator.Validate(value);
+
+        if (!validationResult.IsValid)
         {
-            throw new ArgumentException("Ticket number cannot be null or empty.", nameof(value));
+            var errors = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            throw new DomainExceptions.ValidationException("TICKET_NUMBER_DATA_VALIDATION_ERROR", errors);
         }
 
         return new TicketNumber(value);

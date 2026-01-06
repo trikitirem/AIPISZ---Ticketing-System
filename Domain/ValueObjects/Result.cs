@@ -1,4 +1,5 @@
 using TicketingSystem.Domain.Base;
+using DomainExceptions = TicketingSystem.Domain.Exceptions;
 
 namespace TicketingSystem.Domain.ValueObjects;
 
@@ -30,7 +31,7 @@ public class Result<T> : ValueObject
     {
         if (string.IsNullOrWhiteSpace(error))
         {
-            throw new ArgumentException("Error message cannot be null or empty.", nameof(error));
+            throw new DomainExceptions.ValidationException("RESULT_DATA_VALIDATION_ERROR", "Error message cannot be null or empty");
         }
 
         return new Result<T>(false, default, error);

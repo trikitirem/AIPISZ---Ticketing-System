@@ -322,13 +322,14 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 ### Kluczowe Zasady:
 1. **Private Constructors** - Wszystkie agregaty mają prywatne konstruktory
 2. **Factory Methods** - Używamy `Create()` do tworzenia obiektów domenowych
-3. **FluentValidation** - Walidacja Request DTOs
-4. **Domain Validation** - Wewnętrzna walidacja w `Create()` methods
+3. **FluentValidation** - Walidacja Request DTOs oraz walidacja w klasach domenowych (Value Objects, Entities, Aggregates)
+4. **Domain Validation** - Wewnętrzna walidacja w `Create()` methods używając FluentValidation
 5. **Services Orchestrate** - Services koordynują: Fetch → Policy → Domain → Persist
 6. **Policies Synchronous** - Policies nie mają dependencies na DB
 7. **Mappers Transform** - Mappers konwertują Model → DTO
 8. **Repositories Abstract** - Repositories ukrywają persystencję
 9. **Proste Komentarze** - Komentarze XML tylko przy klasach i interfejsach. Usuwamy jednozdaniowe, krótkie komentarze z metod i właściwości
+10. **Wyjątki Domenowe** - Używamy tylko wyjątków z Domain/Exceptions. Komunikaty błędów w stylu "XXX_DATA_VALIDATION_ERROR" (np. "RESOLUTION_DATA_VALIDATION_ERROR")
 
 ### ⭐ Oznaczone metody są kluczowe dla workflow eskalacji:
 - `MarkAsReadyForVerificationAsync()` - Specialist oznacza jako gotowe

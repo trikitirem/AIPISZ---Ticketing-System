@@ -1,5 +1,8 @@
+using FluentValidation;
 using TicketingSystem.Domain.Base;
 using TicketingSystem.Domain.Enums;
+using TicketingSystem.Domain.Validators;
+using DomainExceptions = TicketingSystem.Domain.Exceptions;
 
 namespace TicketingSystem.Domain.ValueObjects;
 
@@ -22,9 +25,13 @@ public class AccountStatus : ValueObject
 
     public static AccountStatus Create(AccountStatusEnum status)
     {
-        if (!Enum.IsDefined(typeof(AccountStatusEnum), status))
+        var validator = new AccountStatusValidator();
+        var validationResult = validator.Validate(status);
+
+        if (!validationResult.IsValid)
         {
-            throw new ArgumentException($"Invalid account status: {status}", nameof(status));
+            var errors = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            throw new DomainExceptions.ValidationException("ACCOUNT_STATUS_DATA_VALIDATION_ERROR", errors);
         }
 
         return new AccountStatus(status);

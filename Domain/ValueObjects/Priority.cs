@@ -1,5 +1,8 @@
+using FluentValidation;
 using TicketingSystem.Domain.Base;
 using TicketingSystem.Domain.Enums;
+using TicketingSystem.Domain.Validators;
+using DomainExceptions = TicketingSystem.Domain.Exceptions;
 
 namespace TicketingSystem.Domain.ValueObjects;
 
@@ -22,9 +25,13 @@ public class Priority : ValueObject
 
     public static Priority Create(PriorityLevel level)
     {
-        if (!Enum.IsDefined(typeof(PriorityLevel), level))
+        var validator = new PriorityValidator();
+        var validationResult = validator.Validate(level);
+
+        if (!validationResult.IsValid)
         {
-            throw new ArgumentException($"Invalid priority level: {level}", nameof(level));
+            var errors = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            throw new DomainExceptions.ValidationException("PRIORITY_DATA_VALIDATION_ERROR", errors);
         }
 
         return new Priority(level);
