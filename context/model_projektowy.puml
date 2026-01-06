@@ -1,0 +1,402 @@
+@startuml Model_Projektowy_System_Ticketingu
+
+!define DPI 300
+skinparam dpi DPI
+scale 0.6
+
+' === MODERN STYLING ===
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 10
+skinparam defaultFontStyle normal
+skinparam defaultFontColor #1a1a1a
+
+' Classes
+skinparam classFontSize 9
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #ffffff
+skinparam classBorderColor #2c3e50
+skinparam classBorderThickness 1.5
+skinparam classArrowColor #34495e
+
+' Packages
+skinparam packageFontSize 13
+skinparam packageFontStyle bold
+skinparam packageBorderColor #2c3e50
+skinparam packageBorderThickness 2
+skinparam packageStyle rectangle
+skinparam roundcorner 8
+
+' Enums & Interfaces
+skinparam enumBackgroundColor #ecf0f1
+skinparam enumBorderColor #2c3e50
+skinparam interfaceBackgroundColor #e8f4f8
+skinparam interfaceBorderColor #2c3e50
+
+' Lines
+skinparam linetype ortho
+skinparam arrowColor #34495e
+skinparam arrowThickness 1.5
+
+' Other
+skinparam shadowing false
+skinparam backgroundColor #f8f9fa
+skinparam handwritten false
+
+title System Zarzadzania Zgloszeniami (Ticketing System)
+
+package "PrezentacjaLayer" #e3f2fd {
+    class TicketsController {
+        +createTicket(title, description, priority, category): void
+        +getTicketById(ticketId: string): TicketDTO
+        +updateTicketStatus(ticketId, newStatus): void
+        +assignTicket(ticketId, specialistId): void
+        +resolveTicket(ticketId, resolutionType): void
+        +addComment(ticketId, content, isInternal): void
+    }
+
+    class UsersController {
+        +getUserProfile(userId: string): UserDTO
+        +registerUser(email, password): void
+    }
+
+    class TeamsController {
+        +getTeamById(teamId: string): TeamDTO
+        +getTeamMembers(teamId: string): UserDTO[*]
+        +createTeam(name, specialization): void
+    }
+}
+
+package "AplikacjaLayer" #f3e5f5 {
+    class TicketService {
+        -ticketRepository: TicketRepository
+        -userRepository: UserRepository
+        -teamRepository: TeamRepository
+        +createTicket(title, description, priority, category): Ticket
+        +getTicketById(ticketId: string): Ticket
+        +assignTicket(ticketId, specialistId): void
+        +resolveTicket(ticketId, resolutionType): void
+        +updateTicketStatus(ticketId, newStatus): void
+        +addComment(ticketId, content, isInternal): void
+        +escalateTicket(ticketId, reason): void
+    }
+
+    class UserService {
+        -userRepository: UserRepository
+        +registerUser(email, password, firstName, lastName): User
+        +getUserById(userId: string): User
+        +getUserByEmail(email: string): User
+    }
+
+    class TeamService {
+        -teamRepository: TeamRepository
+        +createTeam(name, specialization): Team
+        +getTeamById(teamId: string): Team
+        +addSpecialistToTeam(teamId, specialistId): void
+    }
+
+    package "DTOs" #fff9c4 {
+        class TicketDTO {
+            +id: string
+            +number: string
+            +title: string
+            +description: string
+            +status: TicketStatus
+            +priority: Priority
+            +category: CategoryDTO
+            +assignedSpecialist: UserDTO
+            +assignedTeam: TeamDTO
+            +createdBy: UserDTO
+            +createdAt: DateTime
+            +updatedAt: DateTime
+            +resolution: ResolutionDTO
+            +comments: CommentDTO[*]
+            +escalations: EscalationDTO[*]
+        }
+
+        class UserDTO {
+            +id: string
+            +firstName: string
+            +lastName: string
+            +email: string
+            +accountStatus: string
+        }
+
+        class TeamDTO {
+            +id: string
+            +name: string
+            +specialization: string
+            +members: UserDTO[*]
+        }
+
+        class CategoryDTO {
+            +code: string
+            +name: string
+        }
+
+        class CommentDTO {
+            +author: UserDTO
+            +content: string
+            +createdAt: DateTime
+            +isInternal: boolean
+        }
+
+        class ResolutionDTO {
+            +type: ResolutionType
+            +description: string
+            +tags: string[*]
+            +createdAt: DateTime
+        }
+
+        class EscalationDTO {
+            +reason: string
+            +previousPriority: Priority
+            +newPriority: Priority
+            +escalatedAt: DateTime
+        }
+    }
+}
+
+package "DomenaLayer" #e8f5e9 {
+    class Ticket {
+        -id: string
+        -number: TicketNumber
+        -title: string
+        -description: string
+        -status: TicketStatus
+        -priority: Priority
+        -category: Category
+        -assignedTeam: string
+        -assignedSpecialist: string
+        -createdBy: string
+        -resolution: Resolution
+        -comments: List<<Comment>>
+        -escalations: List<<Escalation>>
+        -attachments: List<<Attachment>>
+        -history: List<<HistoryChange>>
+        -satisfaction: Satisfaction
+        -sla: SLA
+        -createdAt: DateTime
+        -updatedAt: DateTime
+        -resolvedAt: DateTime
+        +changeStatus(newStatus): void
+        +assignTo(specialistId): void
+        +assignToTeam(teamId): void
+        +resolve(resolutionType, description): void
+        +escalate(reason): void
+        +addComment(author, content, isInternal): void
+        +addAttachment(fileName, fileSize, mimeType): void
+        +recordChange(changeType, previousValue, newValue, performedBy): void
+        +isValid(): boolean
+    }
+
+    class TicketNumber {
+        -value: string
+        +getValue(): string
+    }
+
+    class Category {
+        -code: string
+        -name: string
+        -description: string
+        +getCode(): string
+    }
+
+    class Comment {
+        -id: string
+        -authorId: string
+        -content: string
+        -isInternal: boolean
+        -createdAt: DateTime
+        +getAuthorId(): string
+        +getContent(): string
+        +isInternal(): boolean
+    }
+
+    class Resolution {
+        -type: ResolutionType
+        -description: string
+        -tags: List<<string>>
+        -createdAt: DateTime
+        +getType(): ResolutionType
+        +getDescription(): string
+    }
+
+    class Escalation {
+        -id: string
+        -reason: string
+        -previousPriority: Priority
+        -newPriority: Priority
+        -escalatedAt: DateTime
+        -escalatedBy: string
+        +getReason(): string
+        +getPreviousPriority(): Priority
+        +getNewPriority(): Priority
+    }
+
+    class Attachment {
+        -id: string
+        -fileName: string
+        -fileSize: long
+        -mimeType: string
+        -uploadedAt: DateTime
+        -uploadedBy: string
+    }
+
+    class HistoryChange {
+        -id: string
+        -changedAt: DateTime
+        -changeType: string
+        -previousValue: string
+        -newValue: string
+        -performedBy: string
+        -description: string
+        +getChangeType(): string
+        +getPerformedBy(): string
+    }
+
+    class Satisfaction {
+        -id: string
+        -rating: int
+        -comment: string
+        -filledAt: DateTime
+        -isProblemResolved: boolean
+    }
+
+    class SLA {
+        -reactionTime: TimeSpan
+        -resolutionTime: TimeSpan
+        -priority: Priority
+        +getReactionTime(): TimeSpan
+        +getResolutionTime(): TimeSpan
+    }
+
+    class User {
+        -id: string
+        -firstName: string
+        -lastName: string
+        -email: string
+        -passwordHash: string
+        -accountStatus: AccountStatus
+        +getFullName(): string
+        +isActive(): boolean
+    }
+
+    class SupportSpecialist {
+        -team: string
+        -specialization: string
+        -activeTicketLimit: int
+        -currentActiveCount: int
+        +canAcceptMoreTickets(): boolean
+    }
+
+    class Administrator {
+        +escalateTicket(ticketId): void
+        +managePolicies(): void
+    }
+
+    class Team {
+        -id: string
+        -name: string
+        -specialization: string
+        -maxTickets: int
+        -specialists: List<<string>>
+        +addSpecialist(specialistId): void
+        +removeSpecialist(specialistId): void
+        +canAcceptMore(): boolean
+    }
+
+    enum TicketStatus {
+        NOWE
+        PRZYPISANE
+        W_TOKU
+        OCZEKUJE_NA_ODPOWIEDZ
+        ESKALOWANE
+        ROZWIAZANE
+        ZAMKNIETE
+    }
+
+    enum Priority {
+        NISKI
+        SREDNI
+        WYSOKI
+        KRYTYCZNY
+    }
+
+    enum ResolutionType {
+        ROZWIAZANE
+        OBEJSCIE_PROBLEMU
+        NIE_MOZNA_ODTWORZYC
+    }
+
+    enum AccountStatus {
+        ACTIVE
+        INACTIVE
+        SUSPENDED
+    }
+
+    Ticket "1" -- "1" TicketNumber
+    Ticket "1" -- "1" Category
+    Ticket "1" -- "1" Priority
+    Ticket "1" -- "1" TicketStatus
+    Ticket "1" -- "0..1" Resolution
+    Ticket "1" -- "0..*" Comment
+    Ticket "1" -- "0..*" Escalation
+    Ticket "1" -- "0..*" Attachment
+    Ticket "1" -- "0..*" HistoryChange
+    Ticket "1" -- "0..1" Satisfaction
+    Ticket "1" -- "1" SLA
+
+    Resolution "1" -- "1" ResolutionType
+    SLA "1" -- "1" Priority
+
+    User "1" -- "1" AccountStatus
+    SupportSpecialist --|> User
+    Administrator --|> User
+
+    Team "0..*" -- "0..*" SupportSpecialist
+}
+
+package "InfrastrukturyLayer" #ffebee {
+    class TicketRepository {
+        +getByNumber(number: TicketNumber): Ticket
+        +getById(id: string): Ticket
+        +getByAssignedSpecialist(specialistId: string): List<<Ticket>>
+        +getByTeam(teamId: string): List<<Ticket>>
+        +getByStatus(status: TicketStatus): List<<Ticket>>
+        +getByCategory(category: string): List<<Ticket>>
+        +save(ticket: Ticket): void
+        +findAll(): List<<Ticket>>
+    }
+
+    class UserRepository {
+        +getById(id: string): User
+        +getByEmail(email: string): User
+        +getByRole(role: string): List<<User>>
+        +save(user: User): void
+        +findAll(): List<<User>>
+    }
+
+    class TeamRepository {
+        +getById(id: string): Team
+        +getBySpecialization(spec: string): List<<Team>>
+        +save(team: Team): void
+        +findAll(): List<<Team>>
+    }
+}
+
+TicketsController --> TicketService
+UsersController --> UserService
+TeamsController --> TeamService
+
+TicketService --> TicketRepository
+TicketService --> UserRepository
+TicketService --> TeamRepository
+
+UserService --> UserRepository
+TeamService --> TeamRepository
+
+TicketRepository --> Ticket
+UserRepository --> User
+TeamRepository --> Team
+
+@enduml

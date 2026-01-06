@@ -1,4 +1,4 @@
-@startuml TicketingSystem_Implementation_v5_Updated
+@startuml Model_Implementacyjny_System_Ticketingu
 
 !define DPI 300
 skinparam dpi DPI
@@ -34,7 +34,7 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
     ' =====================
     ' BASE CLASSES
     ' =====================
-    
+
     package "Domain.Base" #d1e7f5 {
         abstract class "Entity<TId>" as Entity {
             #{abstract} TId Id
@@ -59,14 +59,14 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
         }
 
         Entity <|-- AggregateRoot
-        
+
         note bottom of Entity
             Wszystkie Entity dziedziczą:
             • Create<T>() - factory method
             • Equals() - porównanie po ID
             • GetHashCode()
         end note
-        
+
         note bottom of ValueObject
             Wszystkie VO dziedziczą:
             • Equals(ValueObject) - abstrakcyjna
@@ -84,9 +84,9 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
         ' =====================
         ' TICKET AGGREGATE
         ' =====================
-        
+
         package "Ticket Aggregate" #e8f5e9 {
-            
+
             ' Root
             class "Ticket" as Ticket <<AggregateRoot>> {
                 -id: string
@@ -286,9 +286,9 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
         ' =====================
         ' USER AGGREGATE
         ' =====================
-        
+
         package "User Aggregate" #e3f2fd {
-            
+
             abstract class "User" as User <<AggregateRoot>> {
                 -id: string
                 -email: string
@@ -350,7 +350,7 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
             Worker --|> User
             User *-- AccountStatus
             AccountStatus --> AccountStatusEnum
-            
+
             note bottom of User
                 UPDATED v5:
                 • Worker dodał CanEscalateTicket()
@@ -362,9 +362,9 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
         ' =====================
         ' TEAM AGGREGATE
         ' =====================
-        
+
         package "Team Aggregate" #f3e5f5 {
-            
+
             class "Team" as Team <<AggregateRoot>> {
                 -id: string
                 -name: string
@@ -398,7 +398,7 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
             +CanAcceptResolution(ticket, resolution, specialist): Result<bool>
             ---
             NEW v5:
-            Prevents "NIE_MOZNA_ODTWORZYC" 
+            Prevents "NIE_MOZNA_ODTWORZYC"
             when problem was reproducible before
         }
 
@@ -448,31 +448,6 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
         SpecialistResolutionPolicy --|> Policy
         TicketStatusPolicy --|> Policy
         Result --|> ValueObject
-
-        note right of ResolutionPolicy
-            POLICY 1:
-            Validates resolution quality.
-            Prevents invalid "NOT_REPRODUCIBLE"
-            for reproducible problems.
-        end note
-
-        note right of WorkerEscalationPolicy
-            POLICY 2 (NEW):
-            Only Worker can escalate.
-            GOTOWE_DO_WERYFIKACJI → ESKALOWANE
-        end note
-
-        note right of SpecialistResolutionPolicy
-            POLICY 3 (NEW):
-            Specialist marks as READY.
-            Uses ResolutionPolicy internally.
-        end note
-
-        note right of EscalationPolicy
-            POLICY 4:
-            Auto-escalation triggers.
-            SLA timeout or many failures.
-        end note
     }
 
     ' =====================
@@ -616,7 +591,7 @@ package "🔧 INFRASTRUCTURE (Infrastruktura)" #fff9f0 {
 package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
 
     package "Application.DTOs" #e8f4f8 {
-        
+
         class "TicketDTO" as TicketDTO {
             -id: string
             -number: string
@@ -711,7 +686,7 @@ package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
     }
 
     package "Application.Mappers" #e8f4f8 {
-        
+
         class "TicketMapper" as TicketMapper {
             +Map(ticket: Ticket): TicketDTO
             +MapDetail(ticket, comments): TicketDetailDTO
@@ -796,7 +771,7 @@ package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
 
         UserService --> UserRepository
         UserService --> UserMapper
-        
+
         TeamService --> TeamRepository
         TeamService --> UserRepository
         TeamService --> TeamMapper
@@ -807,7 +782,7 @@ package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
             • MarkAsReadyForVerificationAsync()
             • ReviewResolutionAsync()
             • EscalateTicketAsync()
-            
+
             Uses 4 policies:
             1. ResolutionPolicy
             2. EscalationPolicy
@@ -817,7 +792,7 @@ package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
     }
 
     package "Application.Validators" #e8f4f8 {
-        
+
         class "CreateTicketRequestValidator" as CreateTicketRequestValidator {
         }
 
@@ -885,63 +860,12 @@ package "🎨 PRESENTATION (Prezentacja)" #fffacd {
             • POST /.../mark-ready-for-verification
             • POST /.../review-resolution
             • POST /.../escalate
-            
+
             Specialist marks READY
             Worker reviews (accepts/escalates)
             Worker escalates with reason
         end note
     }
 }
-
-' =====================
-' WORKFLOW FLOW
-' =====================
-
-package "📊 WORKFLOW FLOW v5" #f5f5f5 {
-    
-    note top of TicketsController
-        UPDATED WORKFLOW:
-        
-        1️⃣ Worker creates ticket (NOWE)
-        2️⃣ Admin/System assigns (PRZYPISANE)
-        3️⃣ Specialist works (W_TOKU)
-        4️⃣ Specialist marks READY
-           (GOTOWE_DO_WERYFIKACJI)
-           [Uses SpecialistResolutionPolicy]
-        
-        5️⃣ Worker reviews:
-           ✅ Accepts → ZAMKNIĘTE
-           ❌ Escalates → ESKALOWANE
-              [Uses WorkerEscalationPolicy]
-        
-        6️⃣ Admin processes escalation
-           • Reassigns to Senior Spec
-           • Changes priority
-           • Or resolves himself
-        
-        AUTO: If SLA timeout or 3+ fails
-        [Uses EscalationPolicy]
-    end note
-}
-
-' =====================
-' LEGEND
-' =====================
-
-legend right
-    |<#e8f5f0> DOMAIN Layer ✨ |
-    |<#d1e7f5> Base Classes |
-    |<#e8f5e9> Ticket Aggregate |
-    |<#e3f2fd> User Aggregate |
-    |<#f3e5f5> Team Aggregate |
-    |<#fff3e0> Policies (4x) 🔴 |
-    |<#ffebee> Exceptions |
-    |<#fff9f0> INFRASTRUCTURE Layer |
-    |<#f0f8ff> APPLICATION Layer |
-    |<#e8f4f8> DTOs & Validators |
-    |<#fffacd> PRESENTATION Layer |
-    | 🔴 = Updated in v5 |
-    | ✨ = Key changes |
-endlegend
 
 @enduml
