@@ -328,7 +328,7 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 6. **Policies Synchronous** - Policies nie mają dependencies na DB
 7. **Mappers Transform** - Mappers konwertują Model → DTO
 8. **Repositories Abstract** - Repositories ukrywają persystencję
-9. **Proste Komentarze** - Komentarze XML powinny być krótkie i zwięzłe, bez nadmiernych wyjaśnień
+9. **Proste Komentarze** - Komentarze XML tylko przy klasach i interfejsach. Usuwamy jednozdaniowe, krótkie komentarze z metod i właściwości
 
 ### ⭐ Oznaczone metody są kluczowe dla workflow eskalacji:
 - `MarkAsReadyForVerificationAsync()` - Specialist oznacza jako gotowe
