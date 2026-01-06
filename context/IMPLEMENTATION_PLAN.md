@@ -186,22 +186,22 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - [x] `AddCommentRequestValidator`
   - Content: NotEmpty, MinLength(1), MaxLength(5000)
 
-### 5.3 Mappers (Application.Mappers)
-- [ ] `TicketMapper`
+### 5.3 Mappers (Application.Mappers) ✅
+- [x] `TicketMapper`
   - Map(ticket): TicketDTO
   - MapDetail(ticket, comments): TicketDetailDTO
   - MapList(tickets): List<TicketDTO>
 
-- [ ] `UserMapper`
+- [x] `UserMapper`
   - Map(user): UserDTO
   - MapSpecialist(specialist): SupportSpecialistDTO
   - MapList(users): List<UserDTO>
 
-- [ ] `TeamMapper`
+- [x] `TeamMapper`
   - Map(team): TeamDTO
   - MapList(teams): List<TeamDTO>
 
-- [ ] `CommentMapper`
+- [x] `CommentMapper`
   - Map(comment): CommentDTO
   - MapList(comments): List<CommentDTO>
 
@@ -364,7 +364,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 4.2: Middleware (ExceptionHandlingMiddleware)
 - ✅ Faza 5.1: DTOs (wszystkie Request i Response DTOs)
 - ✅ Faza 5.2: Validators (CreateTicketRequestValidator, MarkAsReadyForVerificationRequestValidator, ReviewResolutionRequestValidator, EscalateTicketRequestValidator, AddCommentRequestValidator)
+- ✅ Faza 5.3: Mappers (TicketMapper, UserMapper, TeamMapper, CommentMapper)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 5.3 - Mappers (Application.Mappers)
+**Następny krok:** Faza 5.4 - Services (Application.Services)
