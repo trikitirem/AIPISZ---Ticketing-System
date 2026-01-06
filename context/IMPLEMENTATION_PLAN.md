@@ -82,8 +82,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 
 ## 🎯 Faza 3: Policies (Domain.Policies)
 
-### 3.1 Policy Base
-- [ ] `Policy` - klasa abstrakcyjna z Success() i Failure() helper methods
+### 3.1 Policy Base ✅
+- [x] `Policy` - klasa abstrakcyjna z Success() i Failure() helper methods
 
 ### 3.2 Business Policies
 - [ ] `ResolutionPolicy`
@@ -355,7 +355,8 @@ System zarządzania zgłoszeniami oparty na **Domain-Driven Design (DDD)** z arc
 - ✅ Faza 2.1: Ticket Aggregate (Ticket + wszystkie powiązane encje i value objects)
 - ✅ Faza 2.2: User Aggregate (User, SupportSpecialist, Administrator, Worker)
 - ✅ Faza 2.3: Team Aggregate (Team)
+- ✅ Faza 3.1: Policy Base (Policy klasa abstrakcyjna)
 - ✅ Dodano FluentValidation do walidacji w klasach domenowych
 - ✅ Wszystkie klasy używają wyjątków domenowych z komunikatami w stylu "XXX_DATA_VALIDATION_ERROR"
 
-**Następny krok:** Faza 3 - Policies (Domain.Policies)
+**Następny krok:** Faza 3.2 - Business Policies
