@@ -9,7 +9,7 @@ namespace TicketingSystem.Infrastructure.Persistence;
 /// <summary>
 /// Repozytorium dla agregatu Ticket oparte na plikach JSON.
 /// </summary>
-public class TicketRepository : FileBasedRepository<Ticket, string>
+public class TicketRepository : FileBasedRepository<Ticket>
 {
     public TicketRepository(ILogger<TicketRepository> logger)
         : base("Data/tickets.json", logger)

@@ -9,7 +9,7 @@ namespace TicketingSystem.Domain.Aggregates.Ticket;
 /// <summary>
 /// Eskalacja zgłoszenia.
 /// </summary>
-public class Escalation : Entity<string>
+public class Escalation : Entity
 {
     public string Reason { get; private set; }
     public Priority PreviousPriority { get; private set; }

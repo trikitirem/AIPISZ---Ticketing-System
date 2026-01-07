@@ -9,7 +9,7 @@ namespace TicketingSystem.Infrastructure.Persistence;
 /// <summary>
 /// Repozytorium dla agregatu Team oparte na plikach JSON.
 /// </summary>
-public class TeamRepository : FileBasedRepository<Team, string>
+public class TeamRepository : FileBasedRepository<Team>
 {
     public TeamRepository(ILogger<TeamRepository> logger)
         : base("Data/teams.json", logger)

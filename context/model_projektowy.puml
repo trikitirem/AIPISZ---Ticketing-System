@@ -42,9 +42,9 @@ skinparam shadowing false
 skinparam backgroundColor #f8f9fa
 skinparam handwritten false
 
-title System Zarzadzania Zgloszeniami (Ticketing System)
+title <size:28>System Zarzadzania Zgloszeniami (Ticketing System): Model Projektowy</size>\n<size:20>Autorzy: Tymoteusz Hanusiak, Piotr Juruś, Julia Dyrga</size>
 
-package "PrezentacjaLayer" #e3f2fd {
+package "Warstwa Prezentacji" #e3f2fd {
     class TicketsController {
         +createTicket(title, description, priority, category): void
         +getTicketById(ticketId: string): TicketDTO
@@ -66,7 +66,7 @@ package "PrezentacjaLayer" #e3f2fd {
     }
 }
 
-package "AplikacjaLayer" #f3e5f5 {
+package "Warstwa Aplikacji" #f3e5f5 {
     class TicketService {
         -ticketRepository: TicketRepository
         -userRepository: UserRepository
@@ -156,7 +156,7 @@ package "AplikacjaLayer" #f3e5f5 {
     }
 }
 
-package "DomenaLayer" #e8f5e9 {
+package "Warstwa Dziedziny/Domeny" #e8f5e9 {
     class Ticket {
         -id: string
         -number: TicketNumber
@@ -356,7 +356,7 @@ package "DomenaLayer" #e8f5e9 {
     Team "0..*" -- "0..*" SupportSpecialist
 }
 
-package "InfrastrukturyLayer" #ffebee {
+package "Warstwa Infrastruktury" #ffebee {
     class TicketRepository {
         +getByNumber(number: TicketNumber): Ticket
         +getById(id: string): Ticket

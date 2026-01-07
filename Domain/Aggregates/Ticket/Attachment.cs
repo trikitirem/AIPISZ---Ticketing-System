@@ -8,7 +8,7 @@ namespace TicketingSystem.Domain.Aggregates.Ticket;
 /// <summary>
 /// Załącznik do zgłoszenia.
 /// </summary>
-public class Attachment : Entity<string>
+public class Attachment : Entity
 {
     public string FileName { get; private set; }
     public long FileSize { get; private set; }

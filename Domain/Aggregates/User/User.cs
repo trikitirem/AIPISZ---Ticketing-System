@@ -11,7 +11,7 @@ namespace TicketingSystem.Domain.Aggregates.User;
 /// <summary>
 /// Abstrakcyjna klasa bazowa reprezentująca użytkownika w systemie.
 /// </summary>
-public abstract class User : AggregateRoot<string>
+public abstract class User : AggregateRoot
 {
     public string Email { get; private set; }
     public string FirstName { get; private set; }

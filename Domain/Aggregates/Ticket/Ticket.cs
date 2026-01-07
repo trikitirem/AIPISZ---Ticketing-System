@@ -12,7 +12,7 @@ namespace TicketingSystem.Domain.Aggregates.Ticket;
 /// <summary>
 /// Główny agregat reprezentujący zgłoszenie w systemie.
 /// </summary>
-public class Ticket : AggregateRoot<string>
+public class Ticket : AggregateRoot
 {
     public TicketNumber Number { get; private set; }
     public string Title { get; private set; }

@@ -9,13 +9,12 @@ namespace TicketingSystem.Infrastructure.Persistence;
 /// Abstrakcyjna klasa bazowa dla repozytoriów opartych na plikach JSON.
 /// </summary>
 /// <typeparam name="T">Typ agregatu</typeparam>
-/// <typeparam name="TId">Typ identyfikatora agregatu</typeparam>
-public abstract class FileBasedRepository<T, TId> : IRepository<T, TId> where T : AggregateRoot<TId>
+public abstract class FileBasedRepository<T> : IRepository<T> where T : AggregateRoot
 {
     protected readonly string _dataFilePath;
-    protected readonly ILogger<FileBasedRepository<T, TId>> _logger;
+    protected readonly ILogger<FileBasedRepository<T>> _logger;
 
-    protected FileBasedRepository(string dataFilePath, ILogger<FileBasedRepository<T, TId>> logger)
+    protected FileBasedRepository(string dataFilePath, ILogger<FileBasedRepository<T>> logger)
     {
         _dataFilePath = dataFilePath;
         _logger = logger;
@@ -131,7 +130,7 @@ public abstract class FileBasedRepository<T, TId> : IRepository<T, TId> where T 
     /// </summary>
     protected abstract T? FromPrimitive(Dictionary<string, object> data);
 
-    public virtual async Task<T?> GetByIdAsync(TId id)
+    public virtual async Task<T?> GetByIdAsync(string id)
     {
         var aggregates = LoadFromFile();
         return await Task.FromResult(aggregates.FirstOrDefault(a => a.Id!.Equals(id)));
@@ -152,7 +151,6 @@ public abstract class FileBasedRepository<T, TId> : IRepository<T, TId> where T 
         }
 
         SaveToFile(aggregates);
-        aggregate.ClearUncommittedChanges();
         await Task.CompletedTask;
     }
 
@@ -162,7 +160,7 @@ public abstract class FileBasedRepository<T, TId> : IRepository<T, TId> where T 
         return await Task.FromResult(aggregates);
     }
 
-    public virtual async Task DeleteAsync(TId id)
+    public virtual async Task DeleteAsync(string id)
     {
         var aggregates = LoadFromFile();
         aggregates.RemoveAll(a => a.Id!.Equals(id));

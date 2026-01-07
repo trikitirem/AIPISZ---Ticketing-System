@@ -6,13 +6,12 @@ namespace TicketingSystem.Infrastructure.Persistence;
 /// Interfejs repozytorium dla agregatów.
 /// </summary>
 /// <typeparam name="T">Typ agregatu</typeparam>
-/// <typeparam name="TId">Typ identyfikatora agregatu</typeparam>
-public interface IRepository<T, TId> where T : AggregateRoot<TId>
+public interface IRepository<T> where T : AggregateRoot
 {
     /// <summary>
     /// Pobiera agregat po identyfikatorze.
     /// </summary>
-    Task<T?> GetByIdAsync(TId id);
+    Task<T?> GetByIdAsync(string id);
 
     /// <summary>
     /// Zapisuje agregat.
@@ -27,5 +26,5 @@ public interface IRepository<T, TId> where T : AggregateRoot<TId>
     /// <summary>
     /// Usuwa agregat po identyfikatorze.
     /// </summary>
-    Task DeleteAsync(TId id);
+    Task DeleteAsync(string id);
 }

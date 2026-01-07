@@ -8,7 +8,7 @@ namespace TicketingSystem.Domain.Aggregates.Ticket;
 /// <summary>
 /// Satysfakcja workera z rozwiązania zgłoszenia.
 /// </summary>
-public class Satisfaction : Entity<string>
+public class Satisfaction : Entity
 {
     public int Rating { get; private set; }
     public string? Comment { get; private set; }

@@ -6,13 +6,12 @@ namespace TicketingSystem.Domain.Base;
 /// Klasa bazowa dla wszystkich encji w domenie.
 /// Encje są identyfikowane po ID i mają możliwość serializacji/deserializacji.
 /// </summary>
-/// <typeparam name="TId">Typ identyfikatora encji (np. string, Guid, int)</typeparam>
-public abstract class Entity<TId>
+public abstract class Entity
 {
     /// <summary>
     /// Unikalny identyfikator encji.
     /// </summary>
-    public TId Id { get; protected set; } = default!;
+    public string Id { get; protected set; } = string.Empty;
 
     /// <summary>
     /// Prywatny konstruktor - wymusza użycie metody Create().
@@ -27,7 +26,7 @@ public abstract class Entity<TId>
     /// <typeparam name="T">Typ encji do utworzenia</typeparam>
     /// <param name="id">Identyfikator encji</param>
     /// <returns>Nowa instancja encji typu T</returns>
-    public static T Create<T>(TId id) where T : Entity<TId>, new()
+    public static T Create<T>(string id) where T : Entity, new()
     {
         var entity = new T();
         entity.Id = id;
@@ -46,7 +45,7 @@ public abstract class Entity<TId>
     /// <typeparam name="T">Typ encji do utworzenia</typeparam>
     /// <param name="data">Słownik z danymi</param>
     /// <returns>Nowa instancja encji typu T</returns>
-    public static T FromPrimitive<T>(Dictionary<string, object> data) where T : Entity<TId>, new()
+    public static T FromPrimitive<T>(Dictionary<string, object> data) where T : Entity, new()
     {
         var entity = new T();
         // Implementacja deserializacji powinna być przesłonięta w klasach pochodnych
@@ -62,7 +61,7 @@ public abstract class Entity<TId>
         if (obj is null)
             return false;
 
-        if (obj is not Entity<TId> other)
+        if (obj is not Entity other)
             return false;
 
         if (ReferenceEquals(this, other))
@@ -85,7 +84,7 @@ public abstract class Entity<TId>
     /// <summary>
     /// Operator równości dla encji.
     /// </summary>
-    public static bool operator ==(Entity<TId>? left, Entity<TId>? right)
+    public static bool operator ==(Entity? left, Entity? right)
     {
         if (ReferenceEquals(left, right))
             return true;
@@ -99,7 +98,7 @@ public abstract class Entity<TId>
     /// <summary>
     /// Operator nierówności dla encji - przeciwieństwo operatora ==.
     /// </summary>
-    public static bool operator !=(Entity<TId>? left, Entity<TId>? right)
+    public static bool operator !=(Entity? left, Entity? right)
     {
         return !(left == right);
     }

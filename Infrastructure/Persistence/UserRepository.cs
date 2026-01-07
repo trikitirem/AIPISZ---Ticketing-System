@@ -9,7 +9,7 @@ namespace TicketingSystem.Infrastructure.Persistence;
 /// <summary>
 /// Repozytorium dla agregatu User oparte na plikach JSON.
 /// </summary>
-public class UserRepository : FileBasedRepository<User, string>
+public class UserRepository : FileBasedRepository<User>
 {
     public UserRepository(ILogger<UserRepository> logger)
         : base("Data/users.json", logger)

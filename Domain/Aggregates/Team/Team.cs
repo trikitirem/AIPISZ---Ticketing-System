@@ -11,7 +11,7 @@ namespace TicketingSystem.Domain.Aggregates.Team;
 /// <summary>
 /// Agregat reprezentujący zespół specjalistów w systemie.
 /// </summary>
-public class Team : AggregateRoot<string>
+public class Team : AggregateRoot
 {
     public string Name { get; private set; }
     public TicketCategory Specialization { get; private set; }

@@ -8,7 +8,7 @@ namespace TicketingSystem.Domain.Aggregates.Ticket;
 /// <summary>
 /// Historia zmian zgłoszenia.
 /// </summary>
-public class HistoryChange : Entity<string>
+public class HistoryChange : Entity
 {
     public DateTime ChangedAt { get; private set; }
     public string ChangeType { get; private set; }

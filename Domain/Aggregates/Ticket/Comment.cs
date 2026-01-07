@@ -8,7 +8,7 @@ namespace TicketingSystem.Domain.Aggregates.Ticket;
 /// <summary>
 /// Komentarz do zgłoszenia.
 /// </summary>
-public class Comment : Entity<string>
+public class Comment : Entity
 {
     public string AuthorId { get; private set; }
     public string Content { get; private set; }

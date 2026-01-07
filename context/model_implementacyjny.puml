@@ -23,22 +23,22 @@ skinparam shadowing false
 skinparam backgroundColor #f8f9fa
 skinparam roundcorner 8
 
-title File-Based State Architecture - Ticketing System v5 (DDD + Worker Escalation)
+title <size:28>System Zarzadzania Zgloszeniami (Ticketing System): Model Implementacyjny</size>\n<size:20>Autorzy: Tymoteusz Hanusiak, Piotr Juruś, Julia Dyrga</size>
 
 ' =====================
 ' DOMAIN LAYER (DOMENA)
 ' =====================
 
-package "🎯 DOMAIN (Domena)" #e8f5f0 {
+package "Warstwa Domeny" #e8f5f0 {
 
     ' =====================
     ' BASE CLASSES
     ' =====================
 
     package "Domain.Base" #d1e7f5 {
-        abstract class "Entity<TId>" as Entity {
-            #{abstract} TId Id
-            +{static} Create<T>(id: TId): T
+        abstract class "Entity" as Entity {
+            #{abstract} string Id
+            +{static} Create<T>(id: string): T
             +{abstract} ToPrimitive(): Dictionary<string, object>
             +{static} FromPrimitive<T>(data): T
             +Equals(obj: object): boolean
@@ -51,28 +51,10 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
             +GetHashCode(): int
         }
 
-        abstract class "AggregateRoot<TId>" as AggregateRoot {
-            #_uncommittedChanges: List<object>
-            +GetUncommittedChanges(): IReadOnlyList<object>
-            +ClearUncommittedChanges(): void
-            #RaiseEvent(event: object): void
+        abstract class "AggregateRoot" as AggregateRoot {
         }
 
         Entity <|-- AggregateRoot
-
-        note bottom of Entity
-            Wszystkie Entity dziedziczą:
-            • Create<T>() - factory method
-            • Equals() - porównanie po ID
-            • GetHashCode()
-        end note
-
-        note bottom of ValueObject
-            Wszystkie VO dziedziczą:
-            • Equals(ValueObject) - abstrakcyjna
-            • Equals(object) - implementacja
-            • GetHashCode()
-        end note
     }
 
     ' =====================
@@ -271,16 +253,6 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
             HistoryChange --|> Entity
             Satisfaction --|> Entity
             SLA --|> ValueObject
-
-            note right of Ticket
-                UPDATED v5:
-                • NEW: MarkAsReadyForVerification()
-                • NEW: AddEscalation()
-                • NEW: GetEscalationCount()
-                • NEW: WasReproducedBefore()
-                • Status now includes:
-                  GOTOWE_DO_WERYFIKACJI
-            end note
         }
 
         ' =====================
@@ -350,13 +322,6 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
             Worker --|> User
             User *-- AccountStatus
             AccountStatus --> AccountStatusEnum
-
-            note bottom of User
-                UPDATED v5:
-                • Worker dodał CanEscalateTicket()
-                • Worker teraz może eskalować
-                  (był to Specialist - ZMIANA!)
-            end note
         }
 
         ' =====================
@@ -496,26 +461,26 @@ package "🎯 DOMAIN (Domena)" #e8f5f0 {
 ' INFRASTRUCTURE LAYER
 ' =====================
 
-package "🔧 INFRASTRUCTURE (Infrastruktura)" #fff9f0 {
+package "Warstwa Infrastruktury" #fff9f0 {
 
     package "Infrastructure.Persistence" #ffebee {
-        interface "IRepository<T, TId>" as IRepository {
-            +GetByIdAsync(id: TId): Task<T>
+        interface "IRepository<T>" as IRepository {
+            +GetByIdAsync(id: string): Task<T>
             +SaveAsync(aggregate: T): Task
             +GetAllAsync(): Task<List<T>>
-            +DeleteAsync(id: TId): Task
+            +DeleteAsync(id: string): Task
         }
 
-        abstract class "FileBasedRepository<T, TId>" as FileBasedRepository {
+        abstract class "FileBasedRepository<T>" as FileBasedRepository {
             #_dataFilePath: string
             #_logger: ILogger
             ---
             #LoadFromFile(): List<T>
             #SaveToFile(items: List<T>): void
-            +GetByIdAsync(id: TId): Task<T>
+            +GetByIdAsync(id: string): Task<T>
             +SaveAsync(aggregate: T): Task
             +GetAllAsync(): Task<List<T>>
-            +DeleteAsync(id: TId): Task
+            +DeleteAsync(id: string): Task
         }
 
         class "TicketRepository" as TicketRepository {
@@ -554,15 +519,6 @@ package "🔧 INFRASTRUCTURE (Infrastruktura)" #fff9f0 {
         TicketRepository --|> FileBasedRepository
         UserRepository --|> FileBasedRepository
         TeamRepository --|> FileBasedRepository
-
-        note right of FileBasedRepository
-            File-Based Storage:
-            • Wczytaj JSON
-            • Deserializuj do agregatu
-            • Modyfikuj
-            • Serializuj do JSON
-            • Zapisz
-        end note
     }
 
     package "Infrastructure.Middleware" #ffebee {
@@ -573,14 +529,6 @@ package "🔧 INFRASTRUCTURE (Infrastruktura)" #fff9f0 {
             ---
             +InvokeAsync(context: HttpContext): Task
         }
-
-        note right of ExceptionHandlingMiddleware
-            Global Exception Handler:
-            • Catch DomainException
-            • Return JSON response
-            • HTTP Status = exception.Code
-            • No stack trace in response
-        end note
     }
 }
 
@@ -588,7 +536,7 @@ package "🔧 INFRASTRUCTURE (Infrastruktura)" #fff9f0 {
 ' APPLICATION LAYER
 ' =====================
 
-package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
+package "Warstwa Aplikacji" #f0f8ff {
 
     package "Application.DTOs" #e8f4f8 {
 
@@ -677,12 +625,6 @@ package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
         class "EscalateTicketRequest" as EscalateTicketRequest {
             +escalationReason: string
         }
-
-        note bottom of TicketDTO
-            UPDATED v5:
-            DTOs now include escalations
-            and new verification status
-        end note
     }
 
     package "Application.Mappers" #e8f4f8 {
@@ -708,12 +650,6 @@ package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
             +Map(comment: Comment): CommentDTO
             +MapList(comments): List<CommentDTO>
         }
-
-        note bottom of TicketMapper
-            Mappers convert Domain Models → DTOs
-            Isolated from business logic
-            Reusable across layers
-        end note
     }
 
     package "Application.Services" #f3e5f5 {
@@ -775,20 +711,6 @@ package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
         TeamService --> TeamRepository
         TeamService --> UserRepository
         TeamService --> TeamMapper
-
-        note bottom of TicketService
-            UPDATED v5:
-            NEW methods:
-            • MarkAsReadyForVerificationAsync()
-            • ReviewResolutionAsync()
-            • EscalateTicketAsync()
-
-            Uses 4 policies:
-            1. ResolutionPolicy
-            2. EscalationPolicy
-            3. WorkerEscalationPolicy (NEW)
-            4. SpecialistResolutionPolicy (NEW)
-        end note
     }
 
     package "Application.Validators" #e8f4f8 {
@@ -811,7 +733,7 @@ package "⚙️ APPLICATION (Aplikacja)" #f0f8ff {
 ' PRESENTATION LAYER
 ' =====================
 
-package "🎨 PRESENTATION (Prezentacja)" #fffacd {
+package "Warstwa Prezentacji" #fffacd {
 
     package "Presentation.Controllers" #e3f2fd {
 
@@ -853,18 +775,6 @@ package "🎨 PRESENTATION (Prezentacja)" #fffacd {
         UsersController --> UserMapper
         TeamsController --> TeamService
         TeamsController --> TeamMapper
-
-        note bottom of TicketsController
-            UPDATED v5:
-            NEW endpoints:
-            • POST /.../mark-ready-for-verification
-            • POST /.../review-resolution
-            • POST /.../escalate
-
-            Specialist marks READY
-            Worker reviews (accepts/escalates)
-            Worker escalates with reason
-        end note
     }
 }
 
