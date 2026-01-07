@@ -3,9 +3,6 @@ using TicketingSystem.Application.DTOs;
 
 namespace TicketingSystem.Application.Validators;
 
-/// <summary>
-/// Validator dla EscalateTicketRequest.
-/// </summary>
 public class EscalateTicketRequestValidator : AbstractValidator<EscalateTicketRequest>
 {
     public EscalateTicketRequestValidator()

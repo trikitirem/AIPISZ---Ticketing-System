@@ -3,9 +3,6 @@ using TicketingSystem.Application.DTOs;
 
 namespace TicketingSystem.Application.Validators;
 
-/// <summary>
-/// Validator dla ReviewResolutionRequest.
-/// </summary>
 public class ReviewResolutionRequestValidator : AbstractValidator<ReviewResolutionRequest>
 {
     public ReviewResolutionRequestValidator()

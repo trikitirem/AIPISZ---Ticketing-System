@@ -6,9 +6,6 @@ using TicketingSystem.Infrastructure.Persistence;
 
 namespace TicketingSystem.Application.Services;
 
-/// <summary>
-/// Service do zarządzania użytkownikami.
-/// </summary>
 public class UserService
 {
     private readonly UserRepository _userRepository;

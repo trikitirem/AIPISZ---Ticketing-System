@@ -4,9 +4,6 @@ using TicketingSystem.Domain.Enums;
 
 namespace TicketingSystem.Application.Validators;
 
-/// <summary>
-/// Validator dla MarkAsReadyForVerificationRequest.
-/// </summary>
 public class MarkAsReadyForVerificationRequestValidator : AbstractValidator<MarkAsReadyForVerificationRequest>
 {
     public MarkAsReadyForVerificationRequestValidator()

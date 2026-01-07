@@ -7,9 +7,6 @@ using TicketingSystem.Infrastructure.Persistence;
 
 namespace TicketingSystem.Application.Services;
 
-/// <summary>
-/// Service do zarządzania zespołami.
-/// </summary>
 public class TeamService
 {
     private readonly TeamRepository _teamRepository;

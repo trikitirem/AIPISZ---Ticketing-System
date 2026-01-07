@@ -4,9 +4,6 @@ using TicketingSystem.Domain.Enums;
 
 namespace TicketingSystem.Application.Validators;
 
-/// <summary>
-/// Validator dla CreateTicketRequest.
-/// </summary>
 public class CreateTicketRequestValidator : AbstractValidator<CreateTicketRequest>
 {
     public CreateTicketRequestValidator()

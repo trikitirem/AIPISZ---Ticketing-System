@@ -3,15 +3,10 @@ using TicketingSystem.Domain.Aggregates.Ticket;
 using TicketingSystem.Domain.Enums;
 using TicketingSystem.Domain.Exceptions;
 using TicketingSystem.Domain.Policies;
-using TicketingSystem.Domain.ValueObjects;
 using TicketingSystem.Infrastructure.Persistence;
 
 namespace TicketingSystem.Application.Services;
 
-/// <summary>
-/// Service do zarządzania zgłoszeniami.
-/// Orchestruje operacje między Repositories, Policies i Domain Models.
-/// </summary>
 public class TicketService
 {
     private readonly TicketRepository _ticketRepository;

@@ -3,9 +3,6 @@ using TicketingSystem.Application.DTOs;
 
 namespace TicketingSystem.Application.Validators;
 
-/// <summary>
-/// Validator dla AddCommentRequest.
-/// </summary>
 public class AddCommentRequestValidator : AbstractValidator<AddCommentRequest>
 {
     public AddCommentRequestValidator()
